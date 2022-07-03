@@ -8,7 +8,7 @@ from telebot import TeleBot
 from telebot.types import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
 from telebot import apihelper, util, types
 from models import User
-from config import log_file, shelve_users
+from config import log_file, shelve_users, shelve_timers
 import texts
 
 logger = logging.getLogger('TeleBot')
@@ -53,36 +53,67 @@ class WorkingCatTeleBot(TeleBot):
 
         elif status == 'choose_work':
             keyboard = InlineKeyboardMarkup()
-            inline_wash_dish = InlineKeyboardButton(text='Мыть посуду (10 мин., 5 ед. опыта)', callback_data='wash_dish')
+            inline_wash_dish = InlineKeyboardButton(text='Мыть посуду (10 мин., 5 ед. опыта)',
+                                                    callback_data='wash_dish')
             keyboard.add(inline_wash_dish)
-            inline_vacuum = InlineKeyboardButton(text='Пропылесосить (20 мин., 7 ед. опыта)', callback_data='vacuum')
+            inline_vacuum = InlineKeyboardButton(text='Пропылесосить (20 мин., 7 ед. опыта)',
+                                                 callback_data='vacuum')
             keyboard.add(inline_vacuum)
-            inline_bake = InlineKeyboardButton(text='Выпекать шарлотку (30 мин., 10 ед. опыта)', callback_data='bake')
+            inline_bake = InlineKeyboardButton(text='Выпекать шарлотку (30 мин., 10 ед. опыта)',
+                                               callback_data='bake')
             keyboard.add(inline_bake)
-            inline_back = InlineKeyboardButton(text='Назад', callback_data='back_from_choosing_work')
+            inline_back = InlineKeyboardButton(text='Назад',
+                                               callback_data='back_from_choosing_work')
             keyboard.add(inline_back)
 
         elif status == 'on_work':
-            keyboard.row('Статус', 'Работа')
+            keyboard.row('Статус')
         
         return keyboard
 
+    def action_send_status(self, user, chat_id):
+        """Sends status to user"""
+        if user.status == 'idle':
+            text = texts.CAT_STATUS_IDLE
+        elif user.status == 'on_work':
+            text = texts.CAT_STATUS_ON_WORK
+        reply = texts.STATUS_OVERALL.format(user.cat_name, text, user.level,
+                                            user.experience, user.until_level)
+        keyboard = self.get_keyboard(user.status)
+        self.send_message(chat_id, reply, reply_markup=keyboard)
+
     def get_time_format(self, timestamp):
+        """Returns formatted string with timer remains"""
         mins = str(timestamp // 60) if timestamp // 60 > 9 else '0' + str(timestamp // 60)
         secs = str(timestamp % 60) if timestamp % 60 > 9 else '0' + str(timestamp % 60)
         return '{0}:{1}'.format(mins, secs)
 
+    def sync_timers(self):
+        with shelve.open(shelve_timers) as timers:
+            try:
+                self.timers = timers['timers']
+            except KeyError:
+                pass
+
+    def save_timers(self):
+        with shelve.open(shelve_timers) as timers:
+            timers['timers'] = self.timers
+
     def add_timer(self, user, chat_id, message_id, start_timestamp, seconds):
+        """Add timer to self.timers, it will be handled by handle_timers()"""
         timer = {'user': user, 'chat_id': chat_id, 'message_id': message_id,
                  'start_timestamp': start_timestamp, 'seconds': seconds}
         self.timers.append(timer)
+        self.save_timers()
     
     def handle_timers(self):
         """Handles active timers, sends it to members"""
         current_timestamp = int(time.time())
+        self.sync_timers()
         for timer in self.timers[::1]:
             user = timer['user']
-            progress = int(((current_timestamp - timer['start_timestamp']) / timer['seconds'] * 100) / (100 / fill_len))
+            progress = int(((current_timestamp - timer['start_timestamp']) / 
+                             timer['seconds'] * 100) / (100 / fill_len))
             remains = timer['start_timestamp'] + timer['seconds'] - current_timestamp
             str_remains = self.get_time_format(remains)
 
@@ -97,6 +128,7 @@ class WorkingCatTeleBot(TeleBot):
                     self.delete_message(chat_id=timer['chat_id'],
                                         message_id=timer['message_id'])
                 self.timers.remove(timer)
+                self.save_timers()
             else:
                 reply = fill * progress + zfill * (fill_len - progress) + '\n'
                 reply += str_remains
