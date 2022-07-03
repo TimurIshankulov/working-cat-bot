@@ -38,13 +38,13 @@ def handle_callback(call):
                                   text=call.message.text, reply_markup=None)
             if call.data == 'wash_dish':
                 reply = texts.WORK_WASH_DISH_STARTED.format(user.cat_name)
-                seconds = 60
+                seconds = 30
             elif call.data == 'vacuum':
                 reply = texts.WORK_VACUUM_STARTED.format(user.cat_name)
-                seconds = 5
+                seconds = 60
             elif call.data == 'bake':
                 reply = texts.WORK_BAKE_STARTED.format(user.cat_name)
-                seconds = 5
+                seconds = 90
             keyboard = bot.get_keyboard(user.status)
             bot.send_message(call.message.chat.id, reply, reply_markup=keyboard)
             bot.add_timer(user, call.message.chat.id, call.message.message_id, int(time.time()), seconds)
@@ -75,10 +75,7 @@ def handle_message(message):
 
     elif user.status == 'idle':
         if message.text.lower() == 'статус':
-            reply = texts.STATUS_OVERALL.format(user.cat_name, texts.STATUS_IDLE, user.level,
-                                                user.experience, user.until_level)
-            keyboard = bot.get_keyboard(user.status)
-            bot.send_message(message.chat.id, reply, reply_markup=keyboard)
+            bot.action_send_status(user, message.chat.id)
 
         elif message.text.lower() == 'работа':
             user.status = 'choose_work'
@@ -89,22 +86,7 @@ def handle_message(message):
 
     elif user.status == 'on_work':
         if message.text.lower() == 'статус':
-            reply = texts.STATUS_OVERALL.format(user.cat_name, texts.STATUS_ON_WORK, user.level,
-                                                user.experience, user.until_level)
-            keyboard = bot.get_keyboard(user.status)
-            bot.send_message(message.chat.id, reply, reply_markup=keyboard)
-
-        elif message.text.lower() == 'работа':
-            user.status = 'choose_work'
-            user.save()
-            reply = texts.CHOOSE_WORK
-            keyboard = bot.get_keyboard(user.status)
-            bot.send_message(message.chat.id, reply, reply_markup=keyboard)
-        #user.status = 'idle'
-        #user.save()
-        #reply = texts.WORK_DONE.format(user.cat_name)
-        #keyboard = bot.get_keyboard(user.status)
-        #bot.send_message(message.chat.id, reply, reply_markup=keyboard)
+            bot.action_send_status(user, message.chat.id)
 
     else:
         bot.send_message(message.chat.id, texts.REPLY_UNKNOWN_STATUS)
