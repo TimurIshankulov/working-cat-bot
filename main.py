@@ -1,3 +1,5 @@
+import time
+
 import telebot
 from telebot.types import ReplyKeyboardMarkup
 
@@ -29,9 +31,32 @@ def handle_callback(call):
     user = bot.get_user(user_id)
     
     if call.message:
-        if call.data == 'wash_dish':
+        if call.data == 'wash_dish' or call.data == 'vacuum' or call.data == 'bake':
             user.status = 'on_work'
             user.save()
+            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                  text=call.message.text, reply_markup=None)
+            if call.data == 'wash_dish':
+                reply = texts.WORK_WASH_DISH_STARTED.format(user.cat_name)
+                seconds = 5
+            elif call.data == 'vacuum':
+                reply = texts.WORK_VACUUM_STARTED.format(user.cat_name)
+                seconds = 5
+            elif call.data == 'bake':
+                reply = texts.WORK_BAKE_STARTED.format(user.cat_name)
+                seconds = 5
+            keyboard = bot.get_keyboard(user.status)
+            bot.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+            bot.add_timer(user, call.message.chat.id, int(time.time()), seconds)
+
+        elif call.data == 'back_from_choosing_work':
+            user.status = 'idle'
+            user.save()
+            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                  text=call.message.text, reply_markup=None)
+            reply = texts.WORK_BACK_TO_MAIN_MENU
+            keyboard = bot.get_keyboard(user.status)
+            bot.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
 
 @bot.message_handler(content_types=['text'])
@@ -50,8 +75,8 @@ def handle_message(message):
 
     elif user.status == 'idle':
         if message.text.lower() == 'статус':
-            reply = texts.STATUS_1.format(user.cat_name, texts.STATUS_IDLE, user.level,
-                                          user.experience, user.until_level)
+            reply = texts.STATUS_OVERALL.format(user.cat_name, texts.STATUS_IDLE, user.level,
+                                                user.experience, user.until_level)
             keyboard = bot.get_keyboard(user.status)
             bot.send_message(message.chat.id, reply, reply_markup=keyboard)
 
@@ -62,8 +87,27 @@ def handle_message(message):
             keyboard = bot.get_keyboard(user.status)
             bot.send_message(message.chat.id, reply, reply_markup=keyboard)
 
+    elif user.status == 'on_work':
+        if message.text.lower() == 'статус':
+            reply = texts.STATUS_OVERALL.format(user.cat_name, texts.STATUS_ON_WORK, user.level,
+                                                user.experience, user.until_level)
+            keyboard = bot.get_keyboard(user.status)
+            bot.send_message(message.chat.id, reply, reply_markup=keyboard)
+
+        elif message.text.lower() == 'работа':
+            user.status = 'choose_work'
+            user.save()
+            reply = texts.CHOOSE_WORK
+            keyboard = bot.get_keyboard(user.status)
+            bot.send_message(message.chat.id, reply, reply_markup=keyboard)
+        #user.status = 'idle'
+        #user.save()
+        #reply = texts.WORK_DONE.format(user.cat_name)
+        #keyboard = bot.get_keyboard(user.status)
+        #bot.send_message(message.chat.id, reply, reply_markup=keyboard)
+
     else:
         bot.send_message(message.chat.id, texts.REPLY_UNKNOWN_STATUS)
 
 
-bot.polling(none_stop=True)
+bot.polling(non_stop=True)
