@@ -67,8 +67,13 @@ class WorkingCatTeleBot(TeleBot):
         
         return keyboard
 
-    def add_timer(self, user, chat_id, start_timestamp, seconds):
-        timer = {'user': user, 'chat_id': chat_id,
+    def get_time_format(self, timestamp):
+        mins = str(timestamp // 60) if timestamp // 60 > 9 else '0' + str(timestamp // 60)
+        secs = str(timestamp % 60) if timestamp % 60 > 9 else '0' + str(timestamp % 60)
+        return '{0}:{1}'.format(mins, secs)
+
+    def add_timer(self, user, chat_id, message_id, start_timestamp, seconds):
+        timer = {'user': user, 'chat_id': chat_id, 'message_id': message_id,
                  'start_timestamp': start_timestamp, 'seconds': seconds}
         self.timers.append(timer)
     
@@ -76,16 +81,28 @@ class WorkingCatTeleBot(TeleBot):
         """Handles active timers, sends it to members"""
         current_timestamp = int(time.time())
         for timer in self.timers[::1]:
+            user = timer['user']
+            progress = int(((current_timestamp - timer['start_timestamp']) / timer['seconds'] * 100) / (100 / fill_len))
+            remains = timer['start_timestamp'] + timer['seconds'] - current_timestamp
+            str_remains = self.get_time_format(remains)
+
             if current_timestamp - timer['start_timestamp'] >= timer['seconds']:
-                user = timer['user']
                 if user.status == 'on_work':
                     user.status = 'idle'
                     user.save()
                     reply = texts.WORK_DONE.format(user.cat_name)
                     keyboard = self.get_keyboard(user.status)
                     self.send_message(timer['chat_id'], reply, reply_markup=keyboard)
+
+                    self.delete_message(chat_id=timer['chat_id'],
+                                        message_id=timer['message_id'])
                 self.timers.remove(timer)
-    
+            else:
+                reply = fill * progress + zfill * (fill_len - progress) + '\n'
+                reply += str_remains
+                self.edit_message_text(chat_id=timer['chat_id'],
+                                       message_id=timer['message_id'],
+                                       text=reply, reply_markup=None)
     
     def _TeleBot__threaded_polling(self, non_stop = False, interval = 0, timeout = None, long_polling_timeout = None,
                            logger_level=logging.ERROR, allowed_updates=None):

@@ -38,7 +38,7 @@ def handle_callback(call):
                                   text=call.message.text, reply_markup=None)
             if call.data == 'wash_dish':
                 reply = texts.WORK_WASH_DISH_STARTED.format(user.cat_name)
-                seconds = 5
+                seconds = 60
             elif call.data == 'vacuum':
                 reply = texts.WORK_VACUUM_STARTED.format(user.cat_name)
                 seconds = 5
@@ -47,7 +47,7 @@ def handle_callback(call):
                 seconds = 5
             keyboard = bot.get_keyboard(user.status)
             bot.send_message(call.message.chat.id, reply, reply_markup=keyboard)
-            bot.add_timer(user, call.message.chat.id, int(time.time()), seconds)
+            bot.add_timer(user, call.message.chat.id, call.message.message_id, int(time.time()), seconds)
 
         elif call.data == 'back_from_choosing_work':
             user.status = 'idle'
