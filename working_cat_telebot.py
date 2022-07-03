@@ -82,6 +82,35 @@ class WorkingCatTeleBot(TeleBot):
         keyboard = self.get_keyboard(user.status)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
+    def action_complete_work(self, user, timer):
+        if user.status == 'on_work':
+            user.status = 'idle'
+            self.delete_message(chat_id=timer['chat_id'],
+                                message_id=timer['message_id'])
+
+            reply = texts.WORK_DONE.format(user.cat_name, user.work_experience_dict[user.current_work])
+            keyboard = self.get_keyboard(user.status)
+            self.send_message(timer['chat_id'], reply, reply_markup=keyboard)
+        
+            user.experience += user.work_experience_dict[user.current_work]
+            user.current_work = None
+            user.save()
+
+            self.timers.remove(timer)
+            self.save_timers()
+
+    def action_edit_timer(self, timer, current_timestamp):
+        progress = int(((current_timestamp - timer['start_timestamp']) / 
+                         timer['seconds'] * 100) / (100 / fill_len))
+        remains = timer['start_timestamp'] + timer['seconds'] - current_timestamp
+        str_remains = self.get_time_format(remains)
+
+        reply = fill * progress + zfill * (fill_len - progress) + '\n'
+        reply += str_remains
+        self.edit_message_text(chat_id=timer['chat_id'],
+                               message_id=timer['message_id'],
+                               text=reply, reply_markup=None)
+
     def get_time_format(self, timestamp):
         """Returns formatted string with timer remains"""
         mins = str(timestamp // 60) if timestamp // 60 > 9 else '0' + str(timestamp // 60)
@@ -107,37 +136,18 @@ class WorkingCatTeleBot(TeleBot):
         self.save_timers()
     
     def handle_timers(self):
-        """Handles active timers, sends it to members"""
+        """Handles active timers, sends it to users"""
         current_timestamp = int(time.time())
         self.sync_timers()
         for timer in self.timers[::1]:
             user = timer['user']
-            progress = int(((current_timestamp - timer['start_timestamp']) / 
-                             timer['seconds'] * 100) / (100 / fill_len))
-            remains = timer['start_timestamp'] + timer['seconds'] - current_timestamp
-            str_remains = self.get_time_format(remains)
-
             if current_timestamp - timer['start_timestamp'] >= timer['seconds']:
-                if user.status == 'on_work':
-                    user.status = 'idle'
-                    user.save()
-                    reply = texts.WORK_DONE.format(user.cat_name)
-                    keyboard = self.get_keyboard(user.status)
-                    self.send_message(timer['chat_id'], reply, reply_markup=keyboard)
-
-                    self.delete_message(chat_id=timer['chat_id'],
-                                        message_id=timer['message_id'])
-                self.timers.remove(timer)
-                self.save_timers()
+                self.action_complete_work(user, timer)
             else:
-                reply = fill * progress + zfill * (fill_len - progress) + '\n'
-                reply += str_remains
-                self.edit_message_text(chat_id=timer['chat_id'],
-                                       message_id=timer['message_id'],
-                                       text=reply, reply_markup=None)
+                self.action_edit_timer(timer, current_timestamp)
     
     def _TeleBot__threaded_polling(self, non_stop = False, interval = 0, timeout = None, long_polling_timeout = None,
-                           logger_level=logging.ERROR, allowed_updates=None):
+                                   logger_level=logging.ERROR, allowed_updates=None):
         if not(logger_level) or (logger_level < logging.INFO):
             warning = "\n  Warning: this message appearance will be changed. Set logger_level=logging.INFO to continue seeing it."
         else:

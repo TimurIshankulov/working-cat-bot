@@ -33,20 +33,16 @@ def handle_callback(call):
     if call.message:
         if call.data == 'wash_dish' or call.data == 'vacuum' or call.data == 'bake':
             user.status = 'on_work'
+            user.current_work = call.data
             user.save()
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   text=call.message.text, reply_markup=None)
-            if call.data == 'wash_dish':
-                reply = texts.WORK_WASH_DISH_STARTED.format(user.cat_name)
-                seconds = 30
-            elif call.data == 'vacuum':
-                reply = texts.WORK_VACUUM_STARTED.format(user.cat_name)
-                seconds = 60
-            elif call.data == 'bake':
-                reply = texts.WORK_BAKE_STARTED.format(user.cat_name)
-                seconds = 90
+
+            reply = texts.WORK_KIND_DICT[call.data].format(user.cat_name)
             keyboard = bot.get_keyboard(user.status)
             bot.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+
+            seconds = user.work_timer_dict[call.data]
             bot.add_timer(user, call.message.chat.id, call.message.message_id, int(time.time()), seconds)
 
         elif call.data == 'back_from_choosing_work':
