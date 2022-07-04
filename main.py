@@ -16,12 +16,8 @@ keyboard_main.row('Статус', 'Работа')
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    """Handler for new members"""
-    user = User(id=str(message.from_user.id), username=message.from_user.username,
-                chat_id=message.chat.id, status='new')
-    user.fullname = utils.get_fullname(message.from_user.first_name, message.from_user.last_name)
-    user.save()
-    bot.send_message(message.chat.id, texts.GREETING_1, reply_markup=None)
+    """Handler for new users"""
+    bot.action_add_new_user(message)
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -75,11 +71,13 @@ def handle_message(message):
             bot.action_send_status(user, message.chat.id)
 
         elif message.text.lower() == 'работа':
-            user.status = 'choose_work'
-            user.save()
-            reply = texts.CHOOSE_WORK
-            keyboard = bot.get_keyboard(user)
-            bot.send_message(message.chat.id, reply, reply_markup=keyboard)
+            bot.action_choose_work(user, message.chat.id)
+
+        elif message.text.lower() == 'игрушки':
+            bot.action_choose_toys(user, message.chat.id)
+
+        elif message.text.lower() == 'корм':
+            bot.action_choose_food(user, message.chat.id)
 
     elif user.status == 'on_work':
         if message.text.lower() == 'статус':
@@ -89,4 +87,4 @@ def handle_message(message):
         bot.send_message(message.chat.id, texts.REPLY_UNKNOWN_STATUS)
 
 
-bot.polling(non_stop=True)
+bot.polling(non_stop=True, timeout=5, long_polling_timeout=5)

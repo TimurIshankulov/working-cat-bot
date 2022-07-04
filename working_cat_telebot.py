@@ -10,6 +10,7 @@ from telebot import apihelper, util, types
 from models import User
 from config import log_file, shelve_users, shelve_timers
 import texts
+import utils
 
 logger = logging.getLogger('TeleBot')
 
@@ -45,61 +46,79 @@ class WorkingCatTeleBot(TeleBot):
                 pass
         return User()
 
+    def get_choose_work_keyboard(self, user):
+        """Returns Inline Keyboard for choosing work"""
+        keyboard = InlineKeyboardMarkup()
+        inline_wash_dish = InlineKeyboardButton(
+            text=texts.WORK_WASH_DISH_DESC.format(
+                user.work_timer_dict['wash_dish'] // 60,
+                user.work_experience_dict['wash_dish']),
+            callback_data='wash_dish')
+        keyboard.add(inline_wash_dish)
+
+        if user.level >= 2:
+            inline_vacuum = InlineKeyboardButton(
+                text=texts.WORK_VACUUM_DESC.format(
+                    user.work_timer_dict['vacuum'] // 60,
+                    user.work_experience_dict['vacuum']),
+                callback_data='vacuum')
+            keyboard.add(inline_vacuum)
+
+        if user.level >= 3:
+            inline_bake = InlineKeyboardButton(
+                text=texts.WORK_BAKE_DESC.format(
+                    user.work_timer_dict['bake'] // 60,
+                    user.work_experience_dict['bake']),
+                callback_data='bake')
+            keyboard.add(inline_bake)
+        
+        if user.level >= 4:
+            inline_tiktok = InlineKeyboardButton(
+                text=texts.WORK_TIKTOK_DESC.format(
+                    user.work_timer_dict['tiktok'] // 60,
+                    user.work_experience_dict['tiktok']),
+                callback_data='tiktok')
+            keyboard.add(inline_tiktok)
+
+        if user.level >= 5:
+            inline_advertisement = InlineKeyboardButton(
+                text=texts.WORK_ADVERTISEMENT_DESC.format(
+                    user.work_timer_dict['advertisement'] // 60,
+                    user.work_experience_dict['advertisement']),
+                callback_data='advertisement')
+            keyboard.add(inline_advertisement)
+        inline_back = InlineKeyboardButton(
+            text='Назад',
+            callback_data='back_from_choosing_work')
+        keyboard.add(inline_back)
+        return keyboard
+
     def get_keyboard(self, user):
         """Returns keyboard depending on <user.status>"""
         keyboard = ReplyKeyboardMarkup(True, True)
         if user.status == 'idle':
-            keyboard.row('Статус', 'Работа', 'Бонусы', 'Корм')
+            keyboard.row('Статус', 'Работа', 'Игрушки', 'Корм')
 
         elif user.status == 'choose_work':
-            keyboard = InlineKeyboardMarkup()
-            inline_wash_dish = InlineKeyboardButton(
-                text=texts.WORK_WASH_DISH_DESC.format(
-                    user.work_timer_dict['wash_dish'] // 60,
-                    user.work_experience_dict['wash_dish']),
-                callback_data='wash_dish')
-            keyboard.add(inline_wash_dish)
+            keyboard = self.get_choose_work_keyboard(user)
 
-            if user.level >= 2:
-                inline_vacuum = InlineKeyboardButton(
-                    text=texts.WORK_VACUUM_DESC.format(
-                        user.work_timer_dict['vacuum'] // 60,
-                        user.work_experience_dict['vacuum']),
-                    callback_data='vacuum')
-                keyboard.add(inline_vacuum)
+        elif user.status == 'choose_toys':
+            pass
 
-            if user.level >= 3:
-                inline_bake = InlineKeyboardButton(
-                    text=texts.WORK_BAKE_DESC.format(
-                        user.work_timer_dict['bake'] // 60,
-                        user.work_experience_dict['bake']),
-                    callback_data='bake')
-                keyboard.add(inline_bake)
-            
-            if user.level >= 4:
-                inline_tiktok = InlineKeyboardButton(
-                    text=texts.WORK_TIKTOK_DESC.format(
-                        user.work_timer_dict['tiktok'] // 60,
-                        user.work_experience_dict['tiktok']),
-                    callback_data='tiktok')
-                keyboard.add(inline_tiktok)
-
-            if user.level >= 5:
-                inline_advertisement = InlineKeyboardButton(
-                    text=texts.WORK_ADVERTISEMENT_DESC.format(
-                        user.work_timer_dict['advertisement'] // 60,
-                        user.work_experience_dict['advertisement']),
-                    callback_data='advertisement')
-                keyboard.add(inline_advertisement)
-            inline_back = InlineKeyboardButton(
-                text='Назад',
-                callback_data='back_from_choosing_work')
-            keyboard.add(inline_back)
+        elif user.status == 'choose_food':
+            pass
 
         elif user.status == 'on_work':
             keyboard.row('Статус')
         
         return keyboard
+
+    def action_add_new_user(self, message):
+        user = User(id=str(message.from_user.id), username=message.from_user.username,
+                    chat_id=message.chat.id, status='new')
+        user.fullname = utils.get_fullname(message.from_user.first_name, message.from_user.last_name)
+        user.save()
+        self.send_message(message.chat.id, texts.GREETING_1, reply_markup=None)
 
     def action_send_status(self, user, chat_id):
         """Sends status to user"""
@@ -112,13 +131,31 @@ class WorkingCatTeleBot(TeleBot):
         keyboard = self.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
+    def action_choose_work(self, user, chat_id):
+        """Sends message with work choices"""
+        user.status = 'choose_work'
+        user.save()
+        reply = texts.WORK_CHOOSE_WORK
+        keyboard = self.get_keyboard(user)
+        self.send_message(chat_id, reply, reply_markup=keyboard)
+
+    def action_choose_toys(self, user, chat_id):
+        """Sends message with toy choices"""
+        pass
+
+    def action_choose_food(self, user, chat_id):
+        """Sends message with food choices"""
+        pass
+
     def action_complete_work(self, user, timer):
+        """Completes active work, removes timer message, sends result message"""
         if user.status == 'on_work':
             user.status = 'idle'
             self.delete_message(chat_id=timer['chat_id'],
                                 message_id=timer['message_id'])
 
-            reply = texts.WORK_DONE.format(user.cat_name, user.work_experience_dict[user.current_work])
+            reply = texts.WORK_DONE.format(user.cat_name, user.work_experience_dict[user.current_work],
+                                           user.work_coins_dict[user.current_work])
             keyboard = self.get_keyboard(user)
             self.send_message(timer['chat_id'], reply, reply_markup=keyboard)
         
@@ -131,6 +168,7 @@ class WorkingCatTeleBot(TeleBot):
             self.save_timers()
 
     def action_edit_timer(self, timer, current_timestamp):
+        """Edits timer message"""
         progress = int(((current_timestamp - timer['start_timestamp']) / 
                          timer['seconds'] * 100) / (100 / fill_len))
         remains = timer['start_timestamp'] + timer['seconds'] - current_timestamp
@@ -149,6 +187,7 @@ class WorkingCatTeleBot(TeleBot):
         return '{0}:{1}'.format(mins, secs)
 
     def sync_timers(self):
+        """Syncs timers with shelve db"""
         with shelve.open(shelve_timers) as timers:
             try:
                 self.timers = timers['timers']
@@ -156,11 +195,12 @@ class WorkingCatTeleBot(TeleBot):
                 pass
 
     def save_timers(self):
+        """Saves active timers to shelve db"""
         with shelve.open(shelve_timers) as timers:
             timers['timers'] = self.timers
 
     def add_timer(self, user, chat_id, message_id, start_timestamp, seconds):
-        """Add timer to self.timers, it will be handled by handle_timers()"""
+        """Adds timer to self.timers, it will be handled by handle_timers()"""
         timer = {'user': user, 'chat_id': chat_id, 'message_id': message_id,
                  'start_timestamp': start_timestamp, 'seconds': seconds}
         self.timers.append(timer)
@@ -177,10 +217,12 @@ class WorkingCatTeleBot(TeleBot):
             else:
                 self.action_edit_timer(timer, current_timestamp)
     
-    def _TeleBot__threaded_polling(self, non_stop = False, interval = 0, timeout = None, long_polling_timeout = None,
+    def _TeleBot__threaded_polling(self, non_stop=False, interval=0, timeout=None,
+                                   long_polling_timeout=None,
                                    logger_level=logging.ERROR, allowed_updates=None):
         if not(logger_level) or (logger_level < logging.INFO):
-            warning = "\n  Warning: this message appearance will be changed. Set logger_level=logging.INFO to continue seeing it."
+            warning = '\n  Warning: this message appearance will be changed.\
+                Set logger_level=logging.INFO to continue seeing it.'
         else:
             warning = ""
         logger.info('Started polling.' + warning)
@@ -198,7 +240,8 @@ class WorkingCatTeleBot(TeleBot):
             or_event.clear()
             try:
                 self.handle_timers()
-                polling_thread.put(self._TeleBot__retrieve_updates, timeout, long_polling_timeout, allowed_updates=allowed_updates)
+                polling_thread.put(self._TeleBot__retrieve_updates, timeout,
+                                   long_polling_timeout, allowed_updates=allowed_updates)
                 or_event.wait()  # wait for polling thread finish, polling thread error or thread pool error
                 polling_thread.raise_exceptions()
                 self.worker_pool.raise_exceptions()
@@ -225,8 +268,8 @@ class WorkingCatTeleBot(TeleBot):
                             error_interval = 60
                 else:
                     time.sleep(error_interval)
-                polling_thread.clear_exceptions()   #*
-                self.worker_pool.clear_exceptions() #*
+                polling_thread.clear_exceptions()
+                self.worker_pool.clear_exceptions()
             except KeyboardInterrupt:
                 logger.info("KeyboardInterrupt received." + warning)
                 self._TeleBot__stop_polling.set()
@@ -238,8 +281,8 @@ class WorkingCatTeleBot(TeleBot):
                     handled = False
                 if not handled:
                     polling_thread.stop()
-                    polling_thread.clear_exceptions()   #*
-                    self.worker_pool.clear_exceptions() #*
+                    polling_thread.clear_exceptions()
+                    self.worker_pool.clear_exceptions()
                     raise e
                 else:
                     polling_thread.clear_exceptions()
