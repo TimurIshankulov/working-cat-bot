@@ -16,8 +16,10 @@ class User(object):
         self._experience = 0
         self._until_level = 10
 
-        self.work_experience_dict = {'wash_dish': 5, 'vacuum': 7, 'bake': 10}
-        self.work_timer_dict = {'wash_dish': 15, 'vacuum': 15, 'bake': 15}
+        self.work_experience_dict = {'wash_dish': 5, 'vacuum': 7, 'bake': 10, 'tiktok': 14,
+                                     'advertisement': 19}
+        self.work_timer_dict = {'wash_dish': 15, 'vacuum': 15, 'bake': 15, 'tiktok': 15,
+                                'advertisement': 15}
 
     def __str__(self):
         return ('ID: {self.id}, \

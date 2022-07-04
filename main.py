@@ -31,7 +31,8 @@ def handle_callback(call):
     user = bot.get_user(user_id)
     
     if call.message:
-        if call.data == 'wash_dish' or call.data == 'vacuum' or call.data == 'bake':
+        if (call.data == 'wash_dish' or call.data == 'vacuum' or call.data == 'bake' or
+            call.data == 'tiktok' or call.data == 'advertisement'):
             user.status = 'on_work'
             user.current_work = call.data
             user.save()
@@ -39,7 +40,7 @@ def handle_callback(call):
                                   text=call.message.text, reply_markup=None)
 
             reply = texts.WORK_KIND_DICT[call.data].format(user.cat_name)
-            keyboard = bot.get_keyboard(user.status)
+            keyboard = bot.get_keyboard(user)
             bot.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
             seconds = user.work_timer_dict[call.data]
@@ -51,7 +52,7 @@ def handle_callback(call):
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   text=call.message.text, reply_markup=None)
             reply = texts.WORK_BACK_TO_MAIN_MENU
-            keyboard = bot.get_keyboard(user.status)
+            keyboard = bot.get_keyboard(user)
             bot.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
 
@@ -66,7 +67,7 @@ def handle_message(message):
         user.status = 'idle'
         user.save()
         reply = texts.GREETING_2.format(user.cat_name)
-        keyboard = bot.get_keyboard(user.status)
+        keyboard = bot.get_keyboard(user)
         bot.send_message(message.chat.id, reply, reply_markup=keyboard)
 
     elif user.status == 'idle':
@@ -77,7 +78,7 @@ def handle_message(message):
             user.status = 'choose_work'
             user.save()
             reply = texts.CHOOSE_WORK
-            keyboard = bot.get_keyboard(user.status)
+            keyboard = bot.get_keyboard(user)
             bot.send_message(message.chat.id, reply, reply_markup=keyboard)
 
     elif user.status == 'on_work':

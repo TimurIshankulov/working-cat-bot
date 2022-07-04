@@ -45,28 +45,58 @@ class WorkingCatTeleBot(TeleBot):
                 pass
         return User()
 
-    def get_keyboard(self, status):
-        """Returns keyboard depending on <status>"""
+    def get_keyboard(self, user):
+        """Returns keyboard depending on <user.status>"""
         keyboard = ReplyKeyboardMarkup(True, True)
-        if status == 'idle':
+        if user.status == 'idle':
             keyboard.row('Статус', 'Работа')
 
-        elif status == 'choose_work':
+        elif user.status == 'choose_work':
             keyboard = InlineKeyboardMarkup()
-            inline_wash_dish = InlineKeyboardButton(text='Мыть посуду (10 мин., 5 ед. опыта)',
-                                                    callback_data='wash_dish')
+            inline_wash_dish = InlineKeyboardButton(
+                text='Мыть посуду ({0} мин., {1} ед. опыта)'.format(
+                    user.work_timer_dict['wash_dish'] // 60,
+                    user.work_experience_dict['wash_dish']),
+                callback_data='wash_dish')
             keyboard.add(inline_wash_dish)
-            inline_vacuum = InlineKeyboardButton(text='Пропылесосить (20 мин., 7 ед. опыта)',
-                                                 callback_data='vacuum')
-            keyboard.add(inline_vacuum)
-            inline_bake = InlineKeyboardButton(text='Выпекать шарлотку (30 мин., 10 ед. опыта)',
-                                               callback_data='bake')
-            keyboard.add(inline_bake)
-            inline_back = InlineKeyboardButton(text='Назад',
-                                               callback_data='back_from_choosing_work')
+
+            if user.level >= 2:
+                inline_vacuum = InlineKeyboardButton(
+                    text='Пропылесосить ({0} мин., {1} ед. опыта)'.format(
+                        user.work_timer_dict['vacuum'] // 60,
+                        user.work_experience_dict['vacuum']),
+                    callback_data='vacuum')
+                keyboard.add(inline_vacuum)
+
+            if user.level >= 3:
+                inline_bake = InlineKeyboardButton(
+                    text='Выпекать шарлотку ({0} мин., {1} ед. опыта)'.format(
+                        user.work_timer_dict['bake'] // 60,
+                        user.work_experience_dict['bake']),
+                    callback_data='bake')
+                keyboard.add(inline_bake)
+            
+            if user.level >= 4:
+                inline_tiktok = InlineKeyboardButton(
+                    text='Снимать тик-токи ({0} мин., {1} ед. опыта)'.format(
+                        user.work_timer_dict['tiktok'] // 60,
+                        user.work_experience_dict['tiktok']),
+                    callback_data='tiktok')
+                keyboard.add(inline_tiktok)
+
+            if user.level >= 5:
+                inline_advertisement = InlineKeyboardButton(
+                    text='Реклама кошачьего корма ({0} мин., {1} ед. опыта)'.format(
+                        user.work_timer_dict['advertisement'] // 60,
+                        user.work_experience_dict['advertisement']),
+                    callback_data='advertisement')
+                keyboard.add(inline_advertisement)
+            inline_back = InlineKeyboardButton(
+                text='Назад',
+                callback_data='back_from_choosing_work')
             keyboard.add(inline_back)
 
-        elif status == 'on_work':
+        elif user.status == 'on_work':
             keyboard.row('Статус')
         
         return keyboard
@@ -79,7 +109,7 @@ class WorkingCatTeleBot(TeleBot):
             text = texts.CAT_STATUS_ON_WORK
         reply = texts.STATUS_OVERALL.format(user.cat_name, text, user.level,
                                             user.experience, user.until_level)
-        keyboard = self.get_keyboard(user.status)
+        keyboard = self.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
     def action_complete_work(self, user, timer):
@@ -89,7 +119,7 @@ class WorkingCatTeleBot(TeleBot):
                                 message_id=timer['message_id'])
 
             reply = texts.WORK_DONE.format(user.cat_name, user.work_experience_dict[user.current_work])
-            keyboard = self.get_keyboard(user.status)
+            keyboard = self.get_keyboard(user)
             self.send_message(timer['chat_id'], reply, reply_markup=keyboard)
         
             user.experience += user.work_experience_dict[user.current_work]
