@@ -8,18 +8,22 @@ class User(object):
         self.username = username
         self.fullname = fullname
         self.chat_id = chat_id
-
         self.cat_name = cat_name
         self.status = status
+        
         self.current_work = None
         self._level = 1
         self._experience = 0
         self._until_level = 10
+        self.coins = 0
 
-        self.work_experience_dict = {'wash_dish': 5, 'vacuum': 7, 'bake': 10, 'tiktok': 14,
-                                     'advertisement': 19}
         self.work_timer_dict = {'wash_dish': 15, 'vacuum': 15, 'bake': 15, 'tiktok': 15,
                                 'advertisement': 15}
+        self.work_experience_dict = {'wash_dish': 5, 'vacuum': 7, 'bake': 10, 'tiktok': 14,
+                                     'advertisement': 19}
+        self.work_coins_dict = {'wash_dish': 5, 'vacuum': 7, 'bake': 10, 'tiktok': 14,
+                                'advertisement': 19}
+        
 
     def __str__(self):
         return ('ID: {self.id}, \
