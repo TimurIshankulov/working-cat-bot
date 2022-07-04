@@ -49,12 +49,12 @@ class WorkingCatTeleBot(TeleBot):
         """Returns keyboard depending on <user.status>"""
         keyboard = ReplyKeyboardMarkup(True, True)
         if user.status == 'idle':
-            keyboard.row('Статус', 'Работа')
+            keyboard.row('Статус', 'Работа', 'Бонусы', 'Корм')
 
         elif user.status == 'choose_work':
             keyboard = InlineKeyboardMarkup()
             inline_wash_dish = InlineKeyboardButton(
-                text='Мыть посуду ({0} мин., {1} ед. опыта)'.format(
+                text=texts.WORK_WASH_DISH_DESC.format(
                     user.work_timer_dict['wash_dish'] // 60,
                     user.work_experience_dict['wash_dish']),
                 callback_data='wash_dish')
@@ -62,7 +62,7 @@ class WorkingCatTeleBot(TeleBot):
 
             if user.level >= 2:
                 inline_vacuum = InlineKeyboardButton(
-                    text='Пропылесосить ({0} мин., {1} ед. опыта)'.format(
+                    text=texts.WORK_VACUUM_DESC.format(
                         user.work_timer_dict['vacuum'] // 60,
                         user.work_experience_dict['vacuum']),
                     callback_data='vacuum')
@@ -70,7 +70,7 @@ class WorkingCatTeleBot(TeleBot):
 
             if user.level >= 3:
                 inline_bake = InlineKeyboardButton(
-                    text='Выпекать шарлотку ({0} мин., {1} ед. опыта)'.format(
+                    text=texts.WORK_BAKE_DESC.format(
                         user.work_timer_dict['bake'] // 60,
                         user.work_experience_dict['bake']),
                     callback_data='bake')
@@ -78,7 +78,7 @@ class WorkingCatTeleBot(TeleBot):
             
             if user.level >= 4:
                 inline_tiktok = InlineKeyboardButton(
-                    text='Снимать тик-токи ({0} мин., {1} ед. опыта)'.format(
+                    text=texts.WORK_TIKTOK_DESC.format(
                         user.work_timer_dict['tiktok'] // 60,
                         user.work_experience_dict['tiktok']),
                     callback_data='tiktok')
@@ -86,7 +86,7 @@ class WorkingCatTeleBot(TeleBot):
 
             if user.level >= 5:
                 inline_advertisement = InlineKeyboardButton(
-                    text='Реклама кошачьего корма ({0} мин., {1} ед. опыта)'.format(
+                    text=texts.WORK_ADVERTISEMENT_DESC.format(
                         user.work_timer_dict['advertisement'] // 60,
                         user.work_experience_dict['advertisement']),
                     callback_data='advertisement')
@@ -108,7 +108,7 @@ class WorkingCatTeleBot(TeleBot):
         elif user.status == 'on_work':
             text = texts.CAT_STATUS_ON_WORK
         reply = texts.STATUS_OVERALL.format(user.cat_name, text, user.level,
-                                            user.experience, user.until_level)
+                                            user.experience, user.until_level, user.coins)
         keyboard = self.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
@@ -123,6 +123,7 @@ class WorkingCatTeleBot(TeleBot):
             self.send_message(timer['chat_id'], reply, reply_markup=keyboard)
         
             user.experience += user.work_experience_dict[user.current_work]
+            user.coins += user.work_coins_dict[user.current_work]
             user.current_work = None
             user.save()
 
