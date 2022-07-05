@@ -29,27 +29,10 @@ def handle_callback(call):
     if call.message:
         if (call.data == 'wash_dish' or call.data == 'vacuum' or call.data == 'bake' or
             call.data == 'tiktok' or call.data == 'advertisement'):
-            user.status = 'on_work'
-            user.current_work = call.data
-            user.save()
-            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                  text=call.message.text, reply_markup=None)
-
-            reply = texts.WORK_KIND_DICT[call.data].format(user.cat_name)
-            keyboard = bot.get_keyboard(user)
-            bot.send_message(call.message.chat.id, reply, reply_markup=keyboard)
-
-            seconds = user.work_timer_dict[call.data]
-            bot.add_timer(user, call.message.chat.id, call.message.message_id, int(time.time()), seconds)
+            bot.action_callback_take_work(user, call)
 
         elif call.data == 'back_from_choosing_work':
-            user.status = 'idle'
-            user.save()
-            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                  text=call.message.text, reply_markup=None)
-            reply = texts.WORK_BACK_TO_MAIN_MENU
-            keyboard = bot.get_keyboard(user)
-            bot.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+            bot.action_callback_back_from_choosing_work(user, call)
 
 
 @bot.message_handler(content_types=['text'])
@@ -59,12 +42,7 @@ def handle_message(message):
     user = bot.get_user(user_id)
 
     if user.status == 'new':
-        user.cat_name = message.text
-        user.status = 'idle'
-        user.save()
-        reply = texts.GREETING_2.format(user.cat_name)
-        keyboard = bot.get_keyboard(user)
-        bot.send_message(message.chat.id, reply, reply_markup=keyboard)
+        bot.action_get_cat_name(user, message)
 
     elif user.status == 'idle':
         if message.text.lower() == 'статус':

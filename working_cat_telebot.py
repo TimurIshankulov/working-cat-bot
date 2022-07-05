@@ -120,6 +120,14 @@ class WorkingCatTeleBot(TeleBot):
         user.save()
         self.send_message(message.chat.id, texts.GREETING_1, reply_markup=None)
 
+    def action_get_cat_name(self, user, message):
+        user.cat_name = message.text
+        user.status = 'idle'
+        user.save()
+        reply = texts.GREETING_2.format(user.cat_name)
+        keyboard = self.get_keyboard(user)
+        self.send_message(message.chat.id, reply, reply_markup=keyboard)
+
     def action_send_status(self, user, chat_id):
         """Sends status to user"""
         if user.status == 'idle':
@@ -146,6 +154,29 @@ class WorkingCatTeleBot(TeleBot):
     def action_choose_food(self, user, chat_id):
         """Sends message with food choices"""
         pass
+
+    def action_callback_take_work(self, user, call):
+        user.status = 'on_work'
+        user.current_work = call.data
+        user.save()
+        self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                               text=call.message.text, reply_markup=None)
+
+        reply = texts.WORK_KIND_DICT[call.data].format(user.cat_name)
+        keyboard = self.get_keyboard(user)
+        self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+
+        seconds = user.work_timer_dict[call.data]
+        self.add_timer(user, call.message.chat.id, call.message.message_id, int(time.time()), seconds)
+
+    def action_callback_back_from_choosing_work(self, user, call):
+        user.status = 'idle'
+        user.save()
+        self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                               text=call.message.text, reply_markup=None)
+        reply = texts.WORK_BACK_TO_MAIN_MENU
+        keyboard = self.get_keyboard(user)
+        self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
     def action_complete_work(self, user, timer):
         """Completes active work, removes timer message, sends result message"""
