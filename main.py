@@ -32,7 +32,13 @@ def handle_callback(call):
             bot.action_callback_take_work(user, call)
 
         elif call.data == 'back_from_choosing_work':
-            bot.action_callback_back_from_choosing_work(user, call)
+            bot.action_callback_back_from_submenu(user, call)
+
+        elif call.data == 'toy_mouse' or call.data == 'toy_bow' or call.data == 'toy_ball':
+            bot.action_callback_acquire_toy(user, call)
+
+        elif call.data == 'back_from_choosing_toy':
+            bot.action_callback_back_from_submenu(user, call)
 
 
 @bot.message_handler(content_types=['text'])
@@ -62,7 +68,7 @@ def handle_message(message):
             bot.action_send_status(user, message.chat.id)
 
     else:
-        bot.send_message(message.chat.id, texts.REPLY_UNKNOWN_STATUS)
+        bot.action_unknown_status(user, message.chat.id)
 
 
 bot.polling(non_stop=True, timeout=5, long_polling_timeout=5)

@@ -49,6 +49,7 @@ class WorkingCatTeleBot(TeleBot):
     def get_choose_work_keyboard(self, user):
         """Returns Inline Keyboard for choosing work"""
         keyboard = InlineKeyboardMarkup()
+
         inline_wash_dish = InlineKeyboardButton(
             text=texts.WORK_WASH_DISH_DESC.format(
                 user.work_timer_dict['wash_dish'] // 60,
@@ -93,6 +94,33 @@ class WorkingCatTeleBot(TeleBot):
         keyboard.add(inline_back)
         return keyboard
 
+    def get_choose_toy_keyboard(self, user):
+        """Returns Inline Keyboard for choosing toy"""
+        keyboard = InlineKeyboardMarkup()
+
+        inline_mouse = InlineKeyboardButton(
+            text=texts.TOYS_MOUSE_DESC,
+            callback_data='toy_mouse')
+        keyboard.add(inline_mouse)
+
+        if user.level >= 5:
+            inline_bow = InlineKeyboardButton(
+                text=texts.TOYS_BOW_DESC,
+                callback_data='toy_bow')
+            keyboard.add(inline_bow)
+
+        if user.level >= 10:
+            inline_ball = InlineKeyboardButton(
+                text=texts.TOYS_BALL_DESC,
+                callback_data='toy_ball')
+            keyboard.add(inline_ball)
+
+        inline_back = InlineKeyboardButton(
+            text='Назад',
+            callback_data='back_from_choosing_toy')
+        keyboard.add(inline_back)
+        return keyboard
+
     def get_keyboard(self, user):
         """Returns keyboard depending on <user.status>"""
         keyboard = ReplyKeyboardMarkup(True, True)
@@ -103,7 +131,7 @@ class WorkingCatTeleBot(TeleBot):
             keyboard = self.get_choose_work_keyboard(user)
 
         elif user.status == 'choose_toys':
-            pass
+            keyboard = self.get_choose_toy_keyboard(user)
 
         elif user.status == 'choose_food':
             pass
@@ -114,6 +142,7 @@ class WorkingCatTeleBot(TeleBot):
         return keyboard
 
     def action_add_new_user(self, message):
+        """Adds new user to the database"""
         user = User(id=str(message.from_user.id), username=message.from_user.username,
                     chat_id=message.chat.id, status='new')
         user.fullname = utils.get_fullname(message.from_user.first_name, message.from_user.last_name)
@@ -121,6 +150,7 @@ class WorkingCatTeleBot(TeleBot):
         self.send_message(message.chat.id, texts.GREETING_1, reply_markup=None)
 
     def action_get_cat_name(self, user, message):
+        """Saves cat_name and sends wellcome message"""
         user.cat_name = message.text
         user.status = 'idle'
         user.save()
@@ -139,6 +169,12 @@ class WorkingCatTeleBot(TeleBot):
         keyboard = self.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
+    def action_unknown_status(self, user, chat_id):
+        """Sends a message with error and changes the status to idle"""
+        user.status = 'idle'
+        user.save()
+        self.send_message(chat_id, texts.REPLY_UNKNOWN_STATUS)
+
     def action_choose_work(self, user, chat_id):
         """Sends message with work choices"""
         user.status = 'choose_work'
@@ -149,13 +185,18 @@ class WorkingCatTeleBot(TeleBot):
 
     def action_choose_toys(self, user, chat_id):
         """Sends message with toy choices"""
-        pass
+        user.status = 'choose_toys'
+        user.save()
+        reply = texts.TOYS_CHOOSE_TOY
+        keyboard = self.get_keyboard(user)
+        self.send_message(chat_id, reply, reply_markup=keyboard)
 
     def action_choose_food(self, user, chat_id):
         """Sends message with food choices"""
         pass
 
     def action_callback_take_work(self, user, call):
+        """Assigns cat for work"""
         user.status = 'on_work'
         user.current_work = call.data
         user.save()
@@ -169,34 +210,86 @@ class WorkingCatTeleBot(TeleBot):
         seconds = user.work_timer_dict[call.data]
         self.add_timer(user, call.message.chat.id, call.message.message_id, int(time.time()), seconds)
 
-    def action_callback_back_from_choosing_work(self, user, call):
+    def action_callback_acquire_toy(self, user, call):
+        """Tries to acquire a toy, sends result message"""
+        toy_acquired = False
+        insufficient_coins = False
+        user.status = 'idle'
+        toy = call.data
+        toy_cost = user.toy_cost_dict[toy]
+        
+        self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                               text=call.message.text, reply_markup=None)
+
+        if call.data == 'toy_mouse' and not user.toy_mouse_acquired:
+            if user.coins >= toy_cost:
+                user.coins -= toy_cost
+                user.toy_mouse_acquired = True
+                toy_acquired = True
+            else:
+                insufficient_coins = True
+
+        if call.data == 'toy_bow' and not user.toy_bow_acquired:
+            if user.coins >= toy_cost:
+                user.coins -= toy_cost
+                user.toy_bow_acquired = True
+                toy_acquired = True
+            else:
+                insufficient_coins = True
+
+        if call.data == 'toy_ball' and not user.toy_ball_aquired:
+            if user.coins >= toy_cost:
+                user.coins -= toy_cost
+                user.toy_ball_acquired = True
+                toy_acquired = True
+            else:
+                insufficient_coins = True
+        user.save()
+
+        if toy_acquired:
+            reply = texts.TOYS_KIND_DICT[call.data]
+            keyboard = self.get_keyboard(user)
+            self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+        else:
+            if insufficient_coins:
+                reply = texts.TOYS_INSUFFICIENT_COINS
+                keyboard = self.get_keyboard(user)
+                self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+            else:    
+                reply = texts.TOYS_ALREADY_ACQUIRED
+                keyboard = self.get_keyboard(user)
+                self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+
+    def action_callback_back_from_submenu(self, user, call):
+        """Returns to main menu from any submenu"""
         user.status = 'idle'
         user.save()
         self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                text=call.message.text, reply_markup=None)
-        reply = texts.WORK_BACK_TO_MAIN_MENU
+        reply = texts.BACK_TO_MAIN_MENU
         keyboard = self.get_keyboard(user)
         self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
     def action_complete_work(self, user, timer):
         """Completes active work, removes timer message, sends result message"""
-        if user.status == 'on_work':
-            user.status = 'idle'
-            self.delete_message(chat_id=timer['chat_id'],
-                                message_id=timer['message_id'])
+        user.status = 'idle'
+        self.delete_message(chat_id=timer['chat_id'],
+                            message_id=timer['message_id'])
 
-            reply = texts.WORK_DONE.format(user.cat_name, user.work_experience_dict[user.current_work],
-                                           user.work_coins_dict[user.current_work])
-            keyboard = self.get_keyboard(user)
-            self.send_message(timer['chat_id'], reply, reply_markup=keyboard)
-        
-            user.experience += user.work_experience_dict[user.current_work]
-            user.coins += user.work_coins_dict[user.current_work]
-            user.current_work = None
-            user.save()
+        reply = texts.WORK_DONE.format(
+            user.cat_name,
+            user.work_experience_dict[user.current_work] * user.experience_multiplier,
+            user.work_coins_dict[user.current_work])
+        keyboard = self.get_keyboard(user)
+        self.send_message(timer['chat_id'], reply, reply_markup=keyboard)
 
-            self.timers.remove(timer)
-            self.save_timers()
+        user.experience += user.work_experience_dict[user.current_work] * user.experience_multiplier
+        user.coins += user.work_coins_dict[user.current_work]
+        user.current_work = None
+        user.save()
+
+        self.timers.remove(timer)
+        self.save_timers()
 
     def action_edit_timer(self, timer, current_timestamp):
         """Edits timer message"""
