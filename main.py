@@ -77,4 +77,9 @@ def handle_message(message):
         bot.action_unknown_status(user, message.chat.id)
 
 
-bot.polling(non_stop=True, timeout=5, long_polling_timeout=5)
+while True:
+    try:
+        bot.polling(non_stop=True, timeout=5, long_polling_timeout=5)
+    except Exception as _ex:
+        print(_ex)
+        time.sleep(10)
