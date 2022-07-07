@@ -1,6 +1,6 @@
-from audioop import add
 import shelve
-from config import shelve_users
+from sqlitedict import SqliteDict
+from config import shelve_users, sqlite_users
 
 class User(object):
 
@@ -98,8 +98,10 @@ class User(object):
 
     def save(self):
         """Saves user class instance"""
-        with shelve.open(shelve_users) as users:
-            users[self.id] = self
+        db = SqliteDict(sqlite_users)
+        db[self.id] = self
+        db.commit()
+        db.close()
 
     def level_up(self):
         while self._experience >= self.until_level:

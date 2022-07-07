@@ -4,11 +4,13 @@ import shelve
 import logging
 import traceback
 
+from sqlitedict import SqliteDict
 from telebot import TeleBot
 from telebot.types import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
 from telebot import apihelper, util, types
+
 from models import User
-from config import log_file, shelve_users, shelve_timers
+from config import log_file, shelve_users, shelve_timers, sqlite_users, sqlite_timers
 import texts
 import info
 import utils
@@ -39,13 +41,14 @@ class WorkingCatTeleBot(TeleBot):
     def get_user(self, user_id):
         """Returns user if found else empty class instance"""
         user_id = str(user_id)
-        with shelve.open(shelve_users) as users:
-            try:
-                user = users[user_id]
-                return user
-            except KeyError:
-                pass
-        return User()
+        db = SqliteDict(sqlite_users)
+        try:
+            user = db[user_id]
+            return user
+        except KeyError:
+            return User()
+        finally:
+            db.close()
 
     def get_choose_work_keyboard(self, user):
         """Returns Inline Keyboard for choosing work"""
@@ -117,7 +120,7 @@ class WorkingCatTeleBot(TeleBot):
         keyboard.add(inline_back)
         return keyboard
 
-    def get_choose_food_keyboard(self, user): # !!
+    def get_choose_food_keyboard(self, user):
         """Returns Inline Keyboard for choosing food"""
         keyboard = InlineKeyboardMarkup()
 
@@ -386,17 +389,20 @@ class WorkingCatTeleBot(TeleBot):
         return '{0}:{1}'.format(mins, secs)
 
     def sync_timers(self):
-        """Syncs timers with shelve db"""
-        with shelve.open(shelve_timers) as timers:
-            try:
-                self.timers = timers['timers']
-            except KeyError:
-                pass
+        """Syncs timers with sqlite db"""
+        db = SqliteDict(sqlite_timers)
+        try:
+            self.timers = db['timers']
+        except KeyError:
+            pass
+        db.close()
 
     def save_timers(self):
-        """Saves active timers to shelve db"""
-        with shelve.open(shelve_timers) as timers:
-            timers['timers'] = self.timers
+        """Saves active timers to sqlite db"""
+        db = SqliteDict(sqlite_timers)
+        db['timers'] = self.timers
+        db.commit()
+        db.close()
 
     def add_timer(self, user, chat_id, message_id, start_timestamp, seconds):
         """Adds timer to self.timers, it will be handled by handle_timers()"""
