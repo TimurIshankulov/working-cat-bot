@@ -10,6 +10,7 @@ from telebot import apihelper, util, types
 from models import User
 from config import log_file, shelve_users, shelve_timers
 import texts
+import info
 import utils
 
 logger = logging.getLogger('TeleBot')
@@ -52,40 +53,35 @@ class WorkingCatTeleBot(TeleBot):
 
         inline_wash_dish = InlineKeyboardButton(
             text=texts.WORK_WASH_DISH_DESC.format(
-                user.work_timer_dict['wash_dish'] // 60,
-                user.work_experience_dict['wash_dish']),
+                round(info.work_timer_dict['wash_dish'] / 60 * user.speed_multiplier)),
             callback_data='wash_dish')
         keyboard.add(inline_wash_dish)
 
         if user.level >= 2:
             inline_vacuum = InlineKeyboardButton(
                 text=texts.WORK_VACUUM_DESC.format(
-                    user.work_timer_dict['vacuum'] // 60,
-                    user.work_experience_dict['vacuum']),
+                    round(info.work_timer_dict['vacuum'] / 60 * user.speed_multiplier)),
                 callback_data='vacuum')
             keyboard.add(inline_vacuum)
 
         if user.level >= 3:
             inline_bake = InlineKeyboardButton(
                 text=texts.WORK_BAKE_DESC.format(
-                    user.work_timer_dict['bake'] // 60,
-                    user.work_experience_dict['bake']),
+                    round(info.work_timer_dict['bake'] / 60 * user.speed_multiplier)),
                 callback_data='bake')
             keyboard.add(inline_bake)
         
         if user.level >= 4:
             inline_tiktok = InlineKeyboardButton(
                 text=texts.WORK_TIKTOK_DESC.format(
-                    user.work_timer_dict['tiktok'] // 60,
-                    user.work_experience_dict['tiktok']),
+                    round(info.work_timer_dict['tiktok'] / 60 * user.speed_multiplier)),
                 callback_data='tiktok')
             keyboard.add(inline_tiktok)
 
         if user.level >= 5:
             inline_advertisement = InlineKeyboardButton(
                 text=texts.WORK_ADVERTISEMENT_DESC.format(
-                    user.work_timer_dict['advertisement'] // 60,
-                    user.work_experience_dict['advertisement']),
+                    round(info.work_timer_dict['advertisement'] / 60 * user.speed_multiplier)),
                 callback_data='advertisement')
             keyboard.add(inline_advertisement)
         inline_back = InlineKeyboardButton(
@@ -121,6 +117,33 @@ class WorkingCatTeleBot(TeleBot):
         keyboard.add(inline_back)
         return keyboard
 
+    def get_choose_food_keyboard(self, user): # !!
+        """Returns Inline Keyboard for choosing food"""
+        keyboard = InlineKeyboardMarkup()
+
+        inline_fish = InlineKeyboardButton(
+            text=texts.FOOD_FISH_DESC,
+            callback_data='food_fish')
+        keyboard.add(inline_fish)
+
+        if user.level >= 5:
+            inline_premium = InlineKeyboardButton(
+                text=texts.FOOD_PREMIUM_DESC,
+                callback_data='food_premium')
+            keyboard.add(inline_premium)
+
+        if user.level >= 10:
+            inline_shrimp = InlineKeyboardButton(
+                text=texts.FOOD_SHRIMP_DESC,
+                callback_data='food_shrimp')
+            keyboard.add(inline_shrimp)
+
+        inline_back = InlineKeyboardButton(
+            text='Назад',
+            callback_data='back_from_choosing_food')
+        keyboard.add(inline_back)
+        return keyboard
+
     def get_keyboard(self, user):
         """Returns keyboard depending on <user.status>"""
         keyboard = ReplyKeyboardMarkup(True, True)
@@ -134,7 +157,7 @@ class WorkingCatTeleBot(TeleBot):
             keyboard = self.get_choose_toy_keyboard(user)
 
         elif user.status == 'choose_food':
-            pass
+            keyboard = self.get_choose_food_keyboard(user)
 
         elif user.status == 'on_work':
             keyboard.row('Статус')
@@ -193,7 +216,11 @@ class WorkingCatTeleBot(TeleBot):
 
     def action_choose_food(self, user, chat_id):
         """Sends message with food choices"""
-        pass
+        user.status = 'choose_food'
+        user.save()
+        reply = texts.FOOD_CHOOSE_FOOD
+        keyboard = self.get_keyboard(user)
+        self.send_message(chat_id, reply, reply_markup=keyboard)
 
     def action_callback_take_work(self, user, call):
         """Assigns cat for work"""
@@ -207,7 +234,7 @@ class WorkingCatTeleBot(TeleBot):
         keyboard = self.get_keyboard(user)
         self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
-        seconds = user.work_timer_dict[call.data]
+        seconds = round(info.work_timer_dict[call.data] * user.speed_multiplier)
         self.add_timer(user, call.message.chat.id, call.message.message_id, int(time.time()), seconds)
 
     def action_callback_acquire_toy(self, user, call):
@@ -216,7 +243,7 @@ class WorkingCatTeleBot(TeleBot):
         insufficient_coins = False
         user.status = 'idle'
         toy = call.data
-        toy_cost = user.toy_cost_dict[toy]
+        toy_cost = info.toy_cost_dict[toy]
         
         self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                text=call.message.text, reply_markup=None)
@@ -260,6 +287,54 @@ class WorkingCatTeleBot(TeleBot):
                 keyboard = self.get_keyboard(user)
                 self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
+    def action_callback_acquire_food(self, user, call):
+        """Tries to acquire food, sends result message"""
+        food_acquired = False
+        insufficient_coins = False
+        user.status = 'idle'
+        food = call.data
+        food_cost = info.food_cost_dict[food]
+        
+        self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                               text=call.message.text, reply_markup=None)
+        
+        if food == 'food_fish' and not user.food_fish_acquired:
+            if user.coins >= food_cost:
+                user.coins -= food_cost
+                user.food_fish_acquired = True
+                food_acquired = True
+            else:
+                insufficient_coins = True
+        elif food == 'food_premium' and not user.food_premium_acquired:
+            if user.coins >= food_cost:
+                user.coins -= food_cost
+                user.food_premium_acquired = True
+                food_acquired = True
+            else:
+                insufficient_coins = True
+        elif food == 'food_shrimp' and not user.food_shrimp_acquired:
+            if user.coins >= food_cost:
+                user.coins -= food_cost
+                user.food_shrimp_acquired = True
+                food_acquired = True
+            else:
+                insufficient_coins = True
+        user.save()
+
+        if food_acquired:
+            reply = texts.FOOD_KIND_DICT[food]
+            keyboard = self.get_keyboard(user)
+            self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+        else:
+            if insufficient_coins:
+                reply = texts.FOOD_INSUFFICIENT_COINS
+                keyboard = self.get_keyboard(user)
+                self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+            else:
+                reply = texts.FOOD_ALREADY_ACQUIRED
+                keyboard = self.get_keyboard(user)
+                self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+
     def action_callback_back_from_submenu(self, user, call):
         """Returns to main menu from any submenu"""
         user.status = 'idle'
@@ -278,13 +353,13 @@ class WorkingCatTeleBot(TeleBot):
 
         reply = texts.WORK_DONE.format(
             user.cat_name,
-            user.work_experience_dict[user.current_work] * user.experience_multiplier,
-            user.work_coins_dict[user.current_work])
+            info.work_experience_dict[user.current_work] * user.experience_multiplier,
+            info.work_coins_dict[user.current_work])
         keyboard = self.get_keyboard(user)
         self.send_message(timer['chat_id'], reply, reply_markup=keyboard)
 
-        user.experience += user.work_experience_dict[user.current_work] * user.experience_multiplier
-        user.coins += user.work_coins_dict[user.current_work]
+        user.experience += info.work_experience_dict[user.current_work] * user.experience_multiplier
+        user.coins += info.work_coins_dict[user.current_work]
         user.current_work = None
         user.save()
 

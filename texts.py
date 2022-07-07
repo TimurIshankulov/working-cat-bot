@@ -10,33 +10,46 @@ CAT_STATUS_ON_WORK = 'работает'
 
 BACK_TO_MAIN_MENU = 'Возврат в основное меню.'
 
-WORK_CHOOSE_WORK = 'Выберите работу для своего кота.'
-WORK_WASH_DISH_STARTED = '{0} приступил к мытью посуды. Помогаем кожаным мешкам.'
-WORK_WASH_DISH_DESC = 'Мыть посуду ({0} мин., {1} ед. опыта)'
+WORK_CHOOSE_WORK = 'Выберите работу для своего кота. Чем сложнее работа, тем больше она вознаграждается!'
+WORK_WASH_DISH_STARTED = '{0} приступил к мытью посуды. Помогаем кожаным мешкам!'
+WORK_WASH_DISH_DESC = 'Мыть посуду ({0} мин.)'
 WORK_VACUUM_STARTED = '{0} начал пылесосить квартиру. Чистота в квартире важна для кошаков!'
-WORK_VACUUM_DESC = 'Пропылесосить ({0} мин., {1} ед. опыта)'
+WORK_VACUUM_DESC = 'Пропылесосить ({0} мин.)'
 WORK_BAKE_STARTED = '{0} приступил к выпеканию шарлотки. Скоро будет очень вкусно!'
-WORK_BAKE_DESC = 'Выпекать шарлотку ({0} мин., {1} ед. опыта)'
+WORK_BAKE_DESC = 'Выпекать шарлотку ({0} мин.)'
 WORK_TIKTOK_STARTED = '{0} начал снимать трендовые тик-токи. Не беспокоить!'
-WORK_TIKTOK_DESC = 'Снимать тик-токи ({0} мин., {1} ед. опыта)'
+WORK_TIKTOK_DESC = 'Снимать тик-токи ({0} мин.)'
 WORK_ADVERTISEMENT_STARTED = '{0} снимается в рекламе кошачьего корма. Свет, камера, мотор!'
-WORK_ADVERTISEMENT_DESC = 'Реклама кошачьего корма ({0} мин., {1} ед. опыта)'
+WORK_ADVERTISEMENT_DESC = 'Реклама кошачьего корма ({0} мин.)'
 WORK_KIND_DICT = {'wash_dish': WORK_WASH_DISH_STARTED,
                   'vacuum': WORK_VACUUM_STARTED,
                   'bake': WORK_BAKE_STARTED,
                   'tiktok': WORK_TIKTOK_STARTED,
                   'advertisement': WORK_ADVERTISEMENT_STARTED}
-WORK_DONE = '{0} завершил свою работу.\nПолучено очков опыта: {1:.1f}.\nПолучено монет: {2}.'
+WORK_DONE = '{0} завершил свою работу.\nПолучено очков опыта: {1:.1f}\nПолучено монет: {2}'
 
 TOYS_CHOOSE_TOY = 'Выберите игрушку для своего кота.'
 TOYS_MOUSE_ACQUIRED = 'Поздравляем! Вы приобрели игрушечную мышь для кота и получили постоянный бонус + 10% к получаемому опыту!'
-TOYS_MOUSE_DESC = 'Мышка (+ 10% к опыту, 100 монет)'
+TOYS_MOUSE_DESC = 'Мышка (100 монет)'
 TOYS_BOW_ACQUIRED = 'Поздравляем! Вы приобрели бантик на веревке и получили постоянный бонус + 20% к получаемому опыту!'
-TOYS_BOW_DESC = 'Бантик на веревке (+20% к опыту, 200 монет)'
+TOYS_BOW_DESC = 'Бантик на веревке (200 монет)'
 TOYS_BALL_ACQUIRED = 'Поздравляем! Вы приобрели шарик для игры и получили постоянный бонус + 30% к получаемому опыту!'
-TOYS_BALL_DESC = 'Шарик (+ 30% к опыту, 300 монет)'
+TOYS_BALL_DESC = 'Шарик-погремушка (300 монет)'
 TOYS_KIND_DICT = {'toy_mouse': TOYS_MOUSE_ACQUIRED,
                   'toy_bow': TOYS_BOW_ACQUIRED,
                   'toy_ball': TOYS_BALL_ACQUIRED}
 TOYS_ALREADY_ACQUIRED = 'Игрушка уже приобретена!'
 TOYS_INSUFFICIENT_COINS = 'Недостаточно монет для покупки!'
+
+FOOD_CHOOSE_FOOD = 'Выберите корм для своего кота.'
+FOOD_FISH_ACQUIRED = 'Поздравляем! Вы покормили своего кота рыбкой и получили постоянный бонус + 10% к скорости выполнения заданий!'
+FOOD_FISH_DESC = 'Рыбка (100 монет)'
+FOOD_PREMIUM_ACQUIRED = 'Поздравляем! Вы покормили своего кота премиум-кормом и получили постоянный бонус + 20% к скорости выполнения заданий!'
+FOOD_PREMIUM_DESC = 'Премиум-корм (200 монет)'
+FOOD_SHRIMP_ACQUIRED = 'Поздравляем! Вы покормили своего кота королевской креветкой и получили постоянный бонус + 30% к скорости выполнения заданий!'
+FOOD_SHRIMP_DESC = 'Королевская креветка (300 монет)'
+FOOD_KIND_DICT = {'food_fish': FOOD_FISH_ACQUIRED,
+                  'food_premium': FOOD_PREMIUM_ACQUIRED,
+                  'food_shrimp': FOOD_SHRIMP_ACQUIRED}
+FOOD_ALREADY_ACQUIRED = 'Вы уже кормили кота этим кормом!'
+FOOD_INSUFFICIENT_COINS = 'Недостаточно монет для покупки!'

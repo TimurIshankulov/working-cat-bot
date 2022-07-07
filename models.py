@@ -23,14 +23,10 @@ class User(object):
         self.toy_ball_acquired = False
         self._experience_multiplier = 1
 
-        self.work_timer_dict = {'wash_dish': 15, 'vacuum': 15, 'bake': 15, 'tiktok': 15,
-                                'advertisement': 15}
-        self.work_experience_dict = {'wash_dish': 50, 'vacuum': 7, 'bake': 10, 'tiktok': 14,
-                                     'advertisement': 19}
-        self.work_coins_dict = {'wash_dish': 200, 'vacuum': 5, 'bake': 7, 'tiktok': 10,
-                                'advertisement': 15}
-        self.toy_cost_dict = {'toy_mouse': 100, 'toy_bow': 200, 'toy_ball': 300}
-        
+        self.food_fish_acquired = False
+        self.food_premium_acquired = False
+        self.food_shrimp_acquired = False
+        self._speed_multiplier = 1
 
     def __str__(self):
         return ('ID: {self.id}, \
@@ -84,6 +80,21 @@ class User(object):
     @experience_multiplier.setter
     def experience_multiplier(self, experience_multiplier):
         self._experience_multiplier = experience_multiplier
+
+    @property
+    def speed_multiplier(self):
+        additional_coef = 0
+        if self.food_fish_acquired:
+            additional_coef += 0.1
+        if self.food_premium_acquired:
+            additional_coef += 0.2
+        if self.food_shrimp_acquired:
+            additional_coef += 0.3
+        return self._speed_multiplier - additional_coef
+
+    @speed_multiplier.setter
+    def speed_multiplier(self, speed_multiplier):
+        self._speed_multiplier = speed_multiplier
 
     def save(self):
         """Saves user class instance"""

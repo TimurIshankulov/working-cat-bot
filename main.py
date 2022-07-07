@@ -40,6 +40,12 @@ def handle_callback(call):
         elif call.data == 'back_from_choosing_toy':
             bot.action_callback_back_from_submenu(user, call)
 
+        elif call.data in ['food_fish', 'food_premium', 'food_shrimp']:
+            bot.action_callback_acquire_food(user, call)
+
+        elif call.data == 'back_from_choosing_food':
+            bot.action_callback_back_from_submenu(user, call)
+
 
 @bot.message_handler(content_types=['text'])
 def handle_message(message):
