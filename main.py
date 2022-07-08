@@ -46,6 +46,12 @@ def handle_callback(call):
         elif call.data == 'back_from_choosing_food':
             bot.action_callback_back_from_submenu(user, call)
 
+        elif call.data in ['home_small', 'home_flat', 'home_house']:
+            bot.action_callback_acquire_home(user, call)
+
+        elif call.data == 'back_from_choosing_home':
+            bot.action_callback_back_from_submenu(user, call)
+
 
 @bot.message_handler(content_types=['text'])
 def handle_message(message):
@@ -68,6 +74,9 @@ def handle_message(message):
 
         elif message.text.lower() == 'корм':
             bot.action_choose_food(user, message.chat.id)
+
+        elif message.text.lower() == 'дома':
+            bot.action_choose_home(user, message.chat.id)
 
     elif user.status == 'on_work':
         if message.text.lower() == 'статус':

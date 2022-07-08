@@ -1,8 +1,8 @@
 import datetime
 import time
-import shelve
 import logging
 import traceback
+from turtle import home
 
 from sqlitedict import SqliteDict
 from telebot import TeleBot
@@ -10,7 +10,7 @@ from telebot.types import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeybo
 from telebot import apihelper, util, types
 
 from models import User
-from config import log_file, shelve_users, shelve_timers, sqlite_users, sqlite_timers
+from config import log_file, sqlite_users, sqlite_timers
 import texts
 import info
 import utils
@@ -147,11 +147,40 @@ class WorkingCatTeleBot(TeleBot):
         keyboard.add(inline_back)
         return keyboard
 
+    def get_choose_home_keyboard(self, user):
+        """Returns Inline Keyboard for choosing home"""
+        keyboard = InlineKeyboardMarkup()
+
+        if user.level >= 5:
+            inline_small = InlineKeyboardButton(
+                text=texts.HOME_SMALL_DESC,
+                callback_data='home_small')
+            keyboard.add(inline_small)
+
+        if user.level >= 10:
+            inline_flat = InlineKeyboardButton(
+                text=texts.HOME_FLAT_DESC,
+                callback_data='home_flat')
+            keyboard.add(inline_flat)
+
+        if user.level >= 15:
+            inline_house = InlineKeyboardButton(
+                text=texts.HOME_HOUSE_DESC,
+                callback_data='home_house')
+            keyboard.add(inline_house)
+
+        inline_back = InlineKeyboardButton(
+            text='Назад',
+            callback_data='back_from_choosing_home')
+        keyboard.add(inline_back)
+        return keyboard
+
     def get_keyboard(self, user):
         """Returns keyboard depending on <user.status>"""
         keyboard = ReplyKeyboardMarkup(True, True)
         if user.status == 'idle':
-            keyboard.row('Статус', 'Работа', 'Игрушки', 'Корм')
+            keyboard.row('Статус', 'Работа')
+            keyboard.row('Игрушки', 'Корм', 'Дома')
 
         elif user.status == 'choose_work':
             keyboard = self.get_choose_work_keyboard(user)
@@ -161,6 +190,9 @@ class WorkingCatTeleBot(TeleBot):
 
         elif user.status == 'choose_food':
             keyboard = self.get_choose_food_keyboard(user)
+
+        elif user.status == 'choose_home':
+            keyboard = self.get_choose_home_keyboard(user)
 
         elif user.status == 'on_work':
             keyboard.row('Статус')
@@ -225,6 +257,21 @@ class WorkingCatTeleBot(TeleBot):
         keyboard = self.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
+    def action_choose_home(self, user, chat_id):
+        """Sends message with home choices"""
+        if user.level >= 5:
+            user.status = 'choose_home'
+            user.save()
+            reply = texts.HOME_CHOOSE_HOME
+            keyboard = self.get_keyboard(user)
+            self.send_message(chat_id, reply, reply_markup=keyboard)
+        else:
+            user.status = 'idle'
+            user.save()
+            reply = texts.HOME_LOW_LEVEL
+            keyboard = self.get_keyboard(user)
+            self.send_message(chat_id, reply, reply_markup=keyboard)
+
     def action_callback_take_work(self, user, call):
         """Assigns cat for work"""
         user.status = 'on_work'
@@ -245,6 +292,7 @@ class WorkingCatTeleBot(TeleBot):
         toy_acquired = False
         insufficient_coins = False
         user.status = 'idle'
+        user.save()
         toy = call.data
         toy_cost = info.toy_cost_dict[toy]
         
@@ -295,6 +343,7 @@ class WorkingCatTeleBot(TeleBot):
         food_acquired = False
         insufficient_coins = False
         user.status = 'idle'
+        user.save()
         food = call.data
         food_cost = info.food_cost_dict[food]
         
@@ -338,6 +387,54 @@ class WorkingCatTeleBot(TeleBot):
                 keyboard = self.get_keyboard(user)
                 self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
+    def action_callback_acquire_home(self, user, call):
+        """Tries to acquire home, sends result message"""
+        home_acquired = False
+        insufficient_coins = False
+        user.status = 'idle'
+        user.save()
+        home = call.data
+        home_cost = info.home_cost_dict[home]
+        self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                               text=call.message.text, reply_markup=None)
+        
+        if home == 'home_small' and not user.home_small_acquired:
+            if user.coins >= home_cost:
+                user.coins -= home_cost
+                user.home_small_acquired = True
+                home_acquired = True
+            else:
+                insufficient_coins = True
+        elif home == 'home_flat' and not user.home_flat_acquired:
+            if user.coins >= home_cost:
+                user.coins -= home_cost
+                user.home_flat_acquired = True
+                home_acquired = True
+            else:
+                insufficient_coins = True
+        elif home == 'home_house' and not user.home_house_acquired:
+            if user.coins >= home_cost:
+                user.coins -= home_cost
+                user.home_house_acquired = True
+                home_acquired = True
+            else:
+                insufficient_coins = True
+        user.save()
+
+        if home_acquired:
+            reply = texts.HOME_KIND_DICT[home]
+            keyboard = self.get_keyboard(user)
+            self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+        else:
+            if insufficient_coins:
+                reply = texts.HOME_INSUFFICIENT_COINS
+                keyboard = self.get_keyboard(user)
+                self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+            else:
+                reply = texts.HOME_ALREADY_ACQUIRED
+                keyboard = self.get_keyboard(user)
+                self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+
     def action_callback_back_from_submenu(self, user, call):
         """Returns to main menu from any submenu"""
         user.status = 'idle'
@@ -362,7 +459,7 @@ class WorkingCatTeleBot(TeleBot):
         self.send_message(timer['chat_id'], reply, reply_markup=keyboard)
 
         user.experience += info.work_experience_dict[user.current_work] * user.experience_multiplier
-        user.coins += info.work_coins_dict[user.current_work]
+        user.coins += info.work_coins_dict[user.current_work] * user.coins_multiplier
         user.current_work = None
         user.save()
 

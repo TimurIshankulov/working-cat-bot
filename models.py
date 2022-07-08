@@ -1,6 +1,5 @@
-import shelve
 from sqlitedict import SqliteDict
-from config import shelve_users, sqlite_users
+from config import sqlite_users
 
 class User(object):
 
@@ -16,7 +15,7 @@ class User(object):
         self._level = 1
         self._experience = 0.0
         self._until_level = 10
-        self.coins = 0
+        self.coins = 0.0
 
         self.toy_mouse_acquired = False
         self.toy_bow_acquired = False
@@ -27,6 +26,11 @@ class User(object):
         self.food_premium_acquired = False
         self.food_shrimp_acquired = False
         self._speed_multiplier = 1
+
+        self.home_small_acquired = False
+        self.home_flat_acquired = False
+        self.home_house_acquired = False
+        self._coins_multiplier = 1
 
     def __str__(self):
         return ('ID: {self.id}, \
@@ -92,9 +96,24 @@ class User(object):
             additional_coef += 0.3
         return self._speed_multiplier - additional_coef
 
-    @speed_multiplier.setter
-    def speed_multiplier(self, speed_multiplier):
-        self._speed_multiplier = speed_multiplier
+    @experience_multiplier.setter
+    def experience_multiplier(self, experience_multiplier):
+        self._coins_multiplier = experience_multiplier
+
+    @property
+    def coins_multiplier(self):
+        additional_coef = 0
+        if self.home_small_acquired:
+            additional_coef += 0.3
+        if self.home_flat_acquired:
+            additional_coef += 0.6
+        if self.home_house_acquired:
+            additional_coef += 1.0
+        return self._coins_multiplier + additional_coef
+
+    @coins_multiplier.setter
+    def coins_multiplier(self, coins_multiplier):
+        self._coins_multiplier = coins_multiplier
 
     def save(self):
         """Saves user class instance"""
