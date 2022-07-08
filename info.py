@@ -1,4 +1,6 @@
-work_timer_dict = {'wash_dish': 15, 'vacuum': 300, 'bake': 15, 'tiktok': 15,
+statuses_for_main_menu = ['idle', 'on_work', 'choose_work', 'choose_toys', 'choose_food',
+                          'choose_home']
+work_timer_dict = {'wash_dish': 15, 'vacuum': 300, 'bake': 60, 'tiktok': 15,
                    'advertisement': 15}
 work_experience_dict = {'wash_dish': 5000, 'vacuum': 7, 'bake': 10, 'tiktok': 14,
                         'advertisement': 19}

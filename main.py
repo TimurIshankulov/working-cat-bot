@@ -7,6 +7,7 @@ from models import User
 from working_cat_telebot import WorkingCatTeleBot
 import utils
 import texts
+import info
 from config import telegram_token
 
 bot = WorkingCatTeleBot(telegram_token)
@@ -25,7 +26,7 @@ def handle_callback(call):
     """Handler for callback queries"""
     user_id = str(call.message.chat.id)
     user = bot.get_user(user_id)
-    
+    print(user.status)
     if call.message:
         if (call.data == 'wash_dish' or call.data == 'vacuum' or call.data == 'bake' or
             call.data == 'tiktok' or call.data == 'advertisement'):
@@ -58,11 +59,11 @@ def handle_message(message):
     """Handler for text messages from users"""
     user_id = str(message.from_user.id)
     user = bot.get_user(user_id)
-
+    print(user.status)
     if user.status == 'new':
         bot.action_get_cat_name(user, message)
 
-    elif user.status == 'idle':
+    elif user.status in info.statuses_for_main_menu:
         if message.text.lower() == 'статус':
             bot.action_send_status(user, message.chat.id)
 
@@ -78,9 +79,9 @@ def handle_message(message):
         elif message.text.lower() == 'дома':
             bot.action_choose_home(user, message.chat.id)
 
-    elif user.status == 'on_work':
-        if message.text.lower() == 'статус':
-            bot.action_send_status(user, message.chat.id)
+    #elif user.status == 'on_work':
+    #    if message.text.lower() == 'статус':
+    #        bot.action_send_status(user, message.chat.id)
 
     else:
         bot.action_unknown_status(user, message.chat.id)
