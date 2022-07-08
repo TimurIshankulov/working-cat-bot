@@ -292,7 +292,12 @@ class WorkingCatTeleBot(TeleBot):
         self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
         seconds = round(info.work_timer_dict[call.data] * user.speed_multiplier)
-        self.add_timer(user, call.message.chat.id, call.message.message_id, int(time.time()), seconds)
+        self.add_timer(user=user,
+                       chat_id=call.message.chat.id,
+                       message_id=call.message.message_id,
+                       start_timestamp=int(time.time()),
+                       seconds=seconds,
+                       timer_type='work')
 
     def action_callback_acquire_toy(self, user, call):
         """Tries to acquire a toy, sends result message"""
@@ -508,10 +513,11 @@ class WorkingCatTeleBot(TeleBot):
         db.commit()
         db.close()
 
-    def add_timer(self, user, chat_id, message_id, start_timestamp, seconds):
+    def add_timer(self, user, chat_id, message_id, start_timestamp, seconds, timer_type):
         """Adds timer to self.timers, it will be handled by handle_timers()"""
         timer = {'user': user, 'chat_id': chat_id, 'message_id': message_id,
-                 'start_timestamp': start_timestamp, 'seconds': seconds}
+                 'start_timestamp': start_timestamp, 'seconds': seconds,
+                 'timer_type': timer_type}
         self.timers.append(timer)
         self.save_timers()
     
@@ -521,7 +527,8 @@ class WorkingCatTeleBot(TeleBot):
         self.sync_timers()
         for timer in self.timers[::1]:
             user = timer['user']
-            if current_timestamp - timer['start_timestamp'] >= timer['seconds']:
+            if (current_timestamp - timer['start_timestamp'] >= timer['seconds'] and
+                timer['timer_type'] == 'work'):
                 self.action_complete_work(user, timer)
             else:
                 self.action_edit_timer(timer, current_timestamp)
