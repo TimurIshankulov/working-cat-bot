@@ -12,6 +12,8 @@ class User(object):
         self.status = status
         
         self.current_work = None
+        self.is_working = False
+        
         self._level = 1
         self._experience = 0.0
         self._until_level = 10

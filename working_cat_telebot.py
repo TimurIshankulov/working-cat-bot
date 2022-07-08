@@ -193,9 +193,6 @@ class WorkingCatTeleBot(TeleBot):
 
         elif user.status == 'choose_home':
             keyboard = self.get_choose_home_keyboard(user)
-
-        elif user.status == 'on_work':
-            keyboard.row('Статус')
         
         return keyboard
 
@@ -218,11 +215,12 @@ class WorkingCatTeleBot(TeleBot):
 
     def action_send_status(self, user, chat_id):
         """Sends status to user"""
-        if user.status == 'idle':
-            text = texts.CAT_STATUS_IDLE
-        elif user.status == 'on_work':
+        user.status = 'idle'
+        if user.is_working:
             text = texts.CAT_STATUS_ON_WORK
-        reply = texts.STATUS_OVERALL.format(user.cat_name, text, user.level,
+        else:
+            text = texts.CAT_STATUS_IDLE
+        reply = texts.STATUS_OVERALL.format(user.cat_name, user.level, text,
                                             user.experience, user.until_level, user.coins)
         keyboard = self.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
@@ -274,7 +272,16 @@ class WorkingCatTeleBot(TeleBot):
 
     def action_callback_take_work(self, user, call):
         """Assigns cat for work"""
-        user.status = 'on_work'
+        user.status = 'idle'
+        user.save()
+        if user.is_working:
+            reply = texts.WORK_ALREADY_WORKING.format(user.cat_name)
+            keyboard = self.get_keyboard(user)
+            self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                   text=call.message.text, reply_markup=None)
+            self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+            return
+        user.is_working = True
         user.current_work = call.data
         user.save()
         self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
@@ -447,14 +454,14 @@ class WorkingCatTeleBot(TeleBot):
 
     def action_complete_work(self, user, timer):
         """Completes active work, removes timer message, sends result message"""
-        user.status = 'idle'
+        user.is_working = False
         self.delete_message(chat_id=timer['chat_id'],
                             message_id=timer['message_id'])
 
         reply = texts.WORK_DONE.format(
             user.cat_name,
             info.work_experience_dict[user.current_work] * user.experience_multiplier,
-            info.work_coins_dict[user.current_work])
+            info.work_coins_dict[user.current_work] * user.coins_multiplier)
         keyboard = self.get_keyboard(user)
         self.send_message(timer['chat_id'], reply, reply_markup=keyboard)
 
