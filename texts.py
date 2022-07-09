@@ -117,16 +117,17 @@ FOOD_INSUFFICIENT_COINS = SYMBOL_COINS + ' Недостаточно монет �
 
 HOME_CHOOSE_HOME = 'Выберите ' + SYMBOL_SMALL + ' дом для своего кота. Чем дороже дом, тем больше бонус к получаемым монетам!'
 HOME_SMALL_ACQUIRED = 'Поздравляем! Вы приобрели ' + SYMBOL_SMALL + ' скромный кошачий домик и получили постоянный бонус + 30% к получаемым монетам!'
-HOME_SMALL_DESC = SYMBOL_SMALL + ' Скромный кошачий домик (' + SYMBOL_COINS + ' 300)'
+HOME_SMALL_DESC = SYMBOL_SMALL + ' Кошачий домик (' + SYMBOL_COINS + ' {0}, ' + SYMBOL_GEMS + ' {1})'
 HOME_FLAT_ACQUIRED = 'Поздравляем! Вы приобрели ' + SYMBOL_FLAT + ' целую квартиру и получили постоянный бонус + 60% к получаемым монетам!'
-HOME_FLAT_DESC = SYMBOL_FLAT + ' Своя квартира (' + SYMBOL_COINS + ' 600)'
+HOME_FLAT_DESC = SYMBOL_FLAT + ' Своя квартира (' + SYMBOL_COINS + ' {0}, ' + SYMBOL_GEMS + ' {1})'
 HOME_HOUSE_ACQUIRED = 'Поздравляем! Вы приобрели ' + SYMBOL_HOUSE + ' двухэтажный коттедж и получили постоянный бонус + 100% к получаемым монетам!'
-HOME_HOUSE_DESC = SYMBOL_HOUSE + ' Двухэтажный коттедж (' + SYMBOL_COINS + ' 1000)'
+HOME_HOUSE_DESC = SYMBOL_HOUSE + ' Двухэтажный коттедж (' + SYMBOL_COINS + ' {0}, ' + SYMBOL_GEMS + ' {1})'
 HOME_KIND_DICT = {'home_small': HOME_SMALL_ACQUIRED,
                   'home_flat': HOME_FLAT_ACQUIRED,
                   'home_house': HOME_HOUSE_ACQUIRED}
 HOME_ALREADY_ACQUIRED = SYMBOL_HOME + ' Вы уже приобрели этот дом!'
 HOME_INSUFFICIENT_COINS = SYMBOL_COINS + ' Недостаточно монет для покупки!'
+HOME_INSUFFICIENT_GEMS = SYMBOL_GEMS + ' Недостаточно самоцветов для покупки!'
 HOME_LOW_LEVEL = SYMBOL_ATTENTION + 'Покупка домов доступна с 5 уровня!'
 
 TREASURE_HUNT_CHOOSE_TREASURE_HUNT = 'Выберите одну из доступных активностей по ' + SYMBOL_TREASURE + \

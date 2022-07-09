@@ -154,19 +154,22 @@ class WorkingCatTeleBot(TeleBot):
 
         if user.level >= 5:
             inline_small = InlineKeyboardButton(
-                text=texts.HOME_SMALL_DESC,
+                text=texts.HOME_SMALL_DESC.format(info.home_coin_cost_dict['home_small'],
+                                                  info.home_gem_cost_dict['home_small']),
                 callback_data='home_small')
             keyboard.add(inline_small)
 
         if user.level >= 10:
             inline_flat = InlineKeyboardButton(
-                text=texts.HOME_FLAT_DESC,
+                text=texts.HOME_FLAT_DESC.format(info.home_coin_cost_dict['home_flat'],
+                                                 info.home_gem_cost_dict['home_flat']),
                 callback_data='home_flat')
             keyboard.add(inline_flat)
 
         if user.level >= 15:
             inline_house = InlineKeyboardButton(
-                text=texts.HOME_HOUSE_DESC,
+                text=texts.HOME_HOUSE_DESC.format(info.home_coin_cost_dict['home_house'],
+                                                  info.home_gem_cost_dict['home_house']),
                 callback_data='home_house')
             keyboard.add(inline_house)
 
@@ -452,49 +455,64 @@ class WorkingCatTeleBot(TeleBot):
         """Tries to acquire home, sends result message"""
         home_acquired = False
         insufficient_coins = False
+        insufficient_gems = False
         user.status = 'idle'
         user.save()
         home = call.data
-        home_cost = info.home_cost_dict[home]
+        home_coin_cost = info.home_coin_cost_dict[home]
+        home_gem_cost = info.home_gem_cost_dict[home]
+
         self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                text=call.message.text, reply_markup=None)
         
         if home == 'home_small' and not user.home_small_acquired:
-            if user.coins >= home_cost:
-                user.coins -= home_cost
-                user.home_small_acquired = True
-                home_acquired = True
+            if user.coins >= home_coin_cost:
+                if user.gems >= home_gem_cost:
+                    user.coins -= home_coin_cost
+                    user.gems -= home_gem_cost
+                    user.home_small_acquired = True
+                    home_acquired = True
+                else:
+                    insufficient_gems = True
             else:
                 insufficient_coins = True
+
         elif home == 'home_flat' and not user.home_flat_acquired:
-            if user.coins >= home_cost:
-                user.coins -= home_cost
-                user.home_flat_acquired = True
-                home_acquired = True
+            if user.coins >= home_coin_cost:
+                if user.gems >= home_gem_cost:
+                    user.coins -= home_coin_cost
+                    user.gems -= home_gem_cost
+                    user.home_flat_acquired = True
+                    home_acquired = True
+                else:
+                    insufficient_gems = True
             else:
                 insufficient_coins = True
+
         elif home == 'home_house' and not user.home_house_acquired:
-            if user.coins >= home_cost:
-                user.coins -= home_cost
-                user.home_house_acquired = True
-                home_acquired = True
+            if user.coins >= home_coin_cost:
+                if user.gems >= home_gem_cost:
+                    user.coins -= home_coin_cost
+                    user.gems -= home_gem_cost
+                    user.home_house_acquired = True
+                    home_acquired = True
+                else:
+                    insufficient_gems = True
             else:
                 insufficient_coins = True
         user.save()
 
         if home_acquired:
             reply = texts.HOME_KIND_DICT[home]
-            keyboard = self.get_keyboard(user)
-            self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+        elif insufficient_coins:
+            reply = texts.HOME_INSUFFICIENT_COINS
+        elif insufficient_gems:
+            reply = texts.HOME_INSUFFICIENT_GEMS
         else:
-            if insufficient_coins:
-                reply = texts.HOME_INSUFFICIENT_COINS
-                keyboard = self.get_keyboard(user)
-                self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
-            else:
-                reply = texts.HOME_ALREADY_ACQUIRED
-                keyboard = self.get_keyboard(user)
-                self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+            reply = texts.HOME_ALREADY_ACQUIRED
+
+        keyboard = self.get_keyboard(user)
+        self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
     def action_callback_start_treasure_hunt(self, user, call):
         """Assigns cat for treasure hunt"""
@@ -506,7 +524,7 @@ class WorkingCatTeleBot(TeleBot):
             self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                    text=call.message.text, reply_markup=None)
             self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
-            return
+            return None
         user.is_treasure_hunting = True
         user.current_treasure_hunt = call.data
         user.save()
