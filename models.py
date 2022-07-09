@@ -13,11 +13,14 @@ class User(object):
         
         self.current_work = None
         self.is_working = False
-        
+        self.current_treasure_hunt = None
+        self.is_treasure_hunting = False
+
         self._level = 1
         self._experience = 0.0
         self._until_level = 10
         self.coins = 0.0
+        self.gems = 0
 
         self.toy_mouse_acquired = False
         self.toy_bow_acquired = False

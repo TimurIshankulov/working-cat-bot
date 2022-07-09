@@ -28,29 +28,24 @@ def handle_callback(call):
     user = bot.get_user(user_id)
     print(user.status)
     if call.message:
-        if (call.data == 'wash_dish' or call.data == 'vacuum' or call.data == 'bake' or
-            call.data == 'tiktok' or call.data == 'advertisement'):
+        if call.data in ['wash_dish', 'vacuum', 'bake', 'tiktok', 'advertisement']:
             bot.action_callback_take_work(user, call)
 
-        elif call.data == 'back_from_choosing_work':
-            bot.action_callback_back_from_submenu(user, call)
-
-        elif call.data == 'toy_mouse' or call.data == 'toy_bow' or call.data == 'toy_ball':
+        elif call.data in ['toy_mouse', 'toy_bow', 'toy_ball']:
             bot.action_callback_acquire_toy(user, call)
-
-        elif call.data == 'back_from_choosing_toy':
-            bot.action_callback_back_from_submenu(user, call)
 
         elif call.data in ['food_fish', 'food_premium', 'food_shrimp']:
             bot.action_callback_acquire_food(user, call)
 
-        elif call.data == 'back_from_choosing_food':
-            bot.action_callback_back_from_submenu(user, call)
-
         elif call.data in ['home_small', 'home_flat', 'home_house']:
             bot.action_callback_acquire_home(user, call)
 
-        elif call.data == 'back_from_choosing_home':
+        elif call.data in ['solo', 'treasure', 'expedition']:
+            bot.action_callback_start_treasure_hunt(user, call)
+
+        elif call.data in ['back_from_choosing_work', 'back_from_choosing_toy',
+                           'back_from_choosing_food', 'back_from_choosing_home',
+                           'back_from_choosing_treasure_hunt']:
             bot.action_callback_back_from_submenu(user, call)
 
 
@@ -79,9 +74,8 @@ def handle_message(message):
         elif message.text.lower() == 'дома':
             bot.action_choose_home(user, message.chat.id)
 
-    #elif user.status == 'on_work':
-    #    if message.text.lower() == 'статус':
-    #        bot.action_send_status(user, message.chat.id)
+        elif message.text.lower() == 'поиск сокровищ':
+            bot.action_choose_treasure_hunt(user, message.chat.id)
 
     else:
         bot.action_unknown_status(user, message.chat.id)
@@ -91,5 +85,6 @@ while True:
     try:
         bot.polling(non_stop=True, timeout=5, long_polling_timeout=5)
     except Exception as _ex:
+        print('Exception occured:')
         print(_ex)
         time.sleep(10)

@@ -7,15 +7,23 @@ GREETING_2 = 'Имя твоего питомца: {0}.\n\
 Цель игры — приобрести двухэтажный коттедж, чтобы твой котик ни в чем себе не отказывал!\n\
 Примечание. Некоторые возможности открываются только с ростом уровня котика.'
 
-STATUS_OVERALL = 'Кот {0}\nУровень: {1}\nСтатус: {2}\nОпыт: {3:.1f}/{4}\nМонеты: {5:.1f}'
+STATUS_OVERALL = 'Кот {0}\nУровень: {1}\nСтатус: {2}\nОпыт: {3:.1f}/{4}\nМонеты: {5:.1f}\nСамоцветы: {6}'
 
 CAT_STATUS_IDLE = 'отдыхает'
 CAT_STATUS_ON_WORK = 'работает'
 CAT_STATUS_WAITING = 'ожидает указаний'
 
 BACK_TO_MAIN_MENU = 'Возврат в основное меню.'
+MENU_STATUS = 'Статус'
+MENU_WORK = 'Работа'
+MENU_TOYS = 'Игрушки'
+MENU_FOOD = 'Корм'
+MENU_HOME = 'Дома'
+MENU_TREASURE_HUNT = 'Поиск сокровищ'
+MENU_BACK = 'Назад'
 
 WORK_CHOOSE_WORK = 'Выберите работу для своего кота. Чем сложнее работа, тем больше она вознаграждается!'
+WORK_STRING_WORKING = 'Работаем...\n'
 WORK_WASH_DISH_STARTED = '{0} приступил к мытью посуды. Помогаем кожаным мешкам!'
 WORK_WASH_DISH_DESC = 'Мыть посуду ({0} мин.)'
 WORK_VACUUM_STARTED = '{0} начал пылесосить квартиру. Чистота в доме важна для кошаков!'
@@ -72,4 +80,20 @@ HOME_KIND_DICT = {'home_small': HOME_SMALL_ACQUIRED,
                   'home_house': HOME_HOUSE_ACQUIRED}
 HOME_ALREADY_ACQUIRED = 'Вы уже приобрели этот дом!'
 HOME_INSUFFICIENT_COINS = 'Недостаточно монет для покупки!'
-HOME_LOW_LEVEL = 'Доступно с 5 уровня!'
+HOME_LOW_LEVEL = 'Покупка домов доступна с 5 уровня!'
+
+TREASURE_HUNT_LOW_LEVEL = 'Эта активность доступна только с 5 уровня!'
+TREASURE_HUNT_CHOOSE_TREASURE_HUNT = 'Выберите одну из доступных активностей по поиску сокровищ! Награды увеличиваются для более сложных поисков.'
+TREASURE_HUNT_STRING_HUNTING = 'Ищем сокровища...\n'
+TREASURE_HUNT_SOLO_STARTED = '{0} приступил к поиску сокровищ в одиночку, используя металлодетектор! Постараемся найти хоть что-то ценное...'
+TREASURE_HUNT_SOLO_DESC = 'Поиск с металлодетектором (60 мин.)'
+TREASURE_HUNT_TREASURE_STARTED = '{0} со своим другом воспользуется картой сокровищ, чтобы найти и откопать зарытый пиратами клад! Успехов с добычей!'
+TREASURE_HUNT_TREASURE_DESC = 'Искать клад с другом (100 мин.)'
+TREASURE_HUNT_EXPEDITION_STARTED = '{0} снарядил экспедицию, чтобы найти древние сокровища забытых наций!'
+TREASURE_HUNT_EXPEDITION_DESC = 'Снарядить экспедицию (150 мин.)'
+TREASURE_HUNT_KIND_DICT = {'solo': TREASURE_HUNT_SOLO_STARTED,
+                           'treasure': TREASURE_HUNT_TREASURE_STARTED,
+                           'expedition': TREASURE_HUNT_EXPEDITION_STARTED}
+TREASURE_HUNT_ALREADY_HUNTING = '{0} уже ищет сокровища, не разорваться же!'
+TREASURE_HUNT_DONE = '{0} завершил поиск сокровищ.\nПолучено монет: {1:.1f}\nПолучено самоцветов: {2}'
+TREASURE_HUNT_FAILED = 'Поиски сокровищ не увенчались успехом :( . Повезет в следующий раз!'

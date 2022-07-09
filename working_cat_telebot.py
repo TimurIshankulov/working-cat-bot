@@ -2,7 +2,7 @@ import datetime
 import time
 import logging
 import traceback
-from turtle import home
+import random
 
 from sqlitedict import SqliteDict
 from telebot import TeleBot
@@ -15,6 +15,7 @@ import texts
 import info
 import utils
 
+random.seed()
 logger = logging.getLogger('TeleBot')
 
 fill='█'
@@ -88,7 +89,7 @@ class WorkingCatTeleBot(TeleBot):
                 callback_data='advertisement')
             keyboard.add(inline_advertisement)
         inline_back = InlineKeyboardButton(
-            text='Назад',
+            text=texts.MENU_BACK,
             callback_data='back_from_choosing_work')
         keyboard.add(inline_back)
         return keyboard
@@ -115,7 +116,7 @@ class WorkingCatTeleBot(TeleBot):
             keyboard.add(inline_ball)
 
         inline_back = InlineKeyboardButton(
-            text='Назад',
+            text=texts.MENU_BACK,
             callback_data='back_from_choosing_toy')
         keyboard.add(inline_back)
         return keyboard
@@ -142,7 +143,7 @@ class WorkingCatTeleBot(TeleBot):
             keyboard.add(inline_shrimp)
 
         inline_back = InlineKeyboardButton(
-            text='Назад',
+            text=texts.MENU_BACK,
             callback_data='back_from_choosing_food')
         keyboard.add(inline_back)
         return keyboard
@@ -170,8 +171,36 @@ class WorkingCatTeleBot(TeleBot):
             keyboard.add(inline_house)
 
         inline_back = InlineKeyboardButton(
-            text='Назад',
+            text=texts.MENU_BACK,
             callback_data='back_from_choosing_home')
+        keyboard.add(inline_back)
+        return keyboard
+
+    def get_choose_treasure_hunt_keyboard(self, user):
+        """Returns Inline Keyboard for choosing treasure hunt"""
+        keyboard = InlineKeyboardMarkup()
+
+        if user.level >= 5:
+            inline_solo = InlineKeyboardButton(
+                text=texts.TREASURE_HUNT_SOLO_DESC,
+                callback_data='solo')
+            keyboard.add(inline_solo)
+
+        if user.level >= 10:
+            inline_treasure = InlineKeyboardButton(
+                text=texts.TREASURE_HUNT_TREASURE_DESC,
+                callback_data='treasure')
+            keyboard.add(inline_treasure)
+
+        if user.level >= 15:
+            inline_expredition = InlineKeyboardButton(
+                text=texts.TREASURE_HUNT_EXPEDITION_DESC,
+                callback_data='expedition')
+            keyboard.add(inline_expredition)
+
+        inline_back = InlineKeyboardButton(
+            text=texts.MENU_BACK,
+            callback_data='back_from_choosing_treasure_hunt')
         keyboard.add(inline_back)
         return keyboard
 
@@ -179,8 +208,9 @@ class WorkingCatTeleBot(TeleBot):
         """Returns keyboard depending on <user.status>"""
         keyboard = ReplyKeyboardMarkup(True, True)
         if user.status == 'idle':
-            keyboard.row('Статус', 'Работа')
-            keyboard.row('Игрушки', 'Корм', 'Дома')
+            keyboard.row(texts.MENU_STATUS, texts.MENU_WORK)
+            keyboard.row(texts.MENU_TOYS, texts.MENU_FOOD, texts.MENU_HOME)
+            keyboard.row(texts.MENU_TREASURE_HUNT)
 
         elif user.status == 'choose_work':
             keyboard = self.get_choose_work_keyboard(user)
@@ -193,6 +223,9 @@ class WorkingCatTeleBot(TeleBot):
 
         elif user.status == 'choose_home':
             keyboard = self.get_choose_home_keyboard(user)
+
+        elif user.status == 'choose_treasure_hunt':
+            keyboard = self.get_choose_treasure_hunt_keyboard(user)
         
         return keyboard
 
@@ -221,7 +254,8 @@ class WorkingCatTeleBot(TeleBot):
         else:
             text = texts.CAT_STATUS_IDLE
         reply = texts.STATUS_OVERALL.format(user.cat_name, user.level, text,
-                                            user.experience, user.until_level, user.coins)
+                                            user.experience, user.until_level,
+                                            user.coins, user.gems)
         keyboard = self.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
@@ -267,6 +301,21 @@ class WorkingCatTeleBot(TeleBot):
             user.status = 'idle'
             user.save()
             reply = texts.HOME_LOW_LEVEL
+            keyboard = self.get_keyboard(user)
+            self.send_message(chat_id, reply, reply_markup=keyboard)
+
+    def action_choose_treasure_hunt(self, user, chat_id):
+        """Sends message with treasure hunt choices"""
+        if user.level >= 5:
+            user.status = 'choose_treasure_hunt'
+            user.save()
+            reply = texts.TREASURE_HUNT_CHOOSE_TREASURE_HUNT
+            keyboard = self.get_keyboard(user)
+            self.send_message(chat_id, reply, reply_markup=keyboard)
+        else:
+            user.status = 'idle'
+            user.save()
+            reply = texts.TREASURE_HUNT_LOW_LEVEL
             keyboard = self.get_keyboard(user)
             self.send_message(chat_id, reply, reply_markup=keyboard)
 
@@ -447,6 +496,35 @@ class WorkingCatTeleBot(TeleBot):
                 keyboard = self.get_keyboard(user)
                 self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
+    def action_callback_start_treasure_hunt(self, user, call):
+        """Assigns cat for treasure hunt"""
+        user.status = 'idle'
+        user.save()
+        if user.is_treasure_hunting:
+            reply = texts.TREASURE_HUNT_ALREADY_HUNTING.format(user.cat_name)
+            keyboard = self.get_keyboard(user)
+            self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                   text=call.message.text, reply_markup=None)
+            self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+            return
+        user.is_treasure_hunting = True
+        user.current_treasure_hunt = call.data
+        user.save()
+        self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                               text=call.message.text, reply_markup=None)
+
+        reply = texts.TREASURE_HUNT_KIND_DICT[call.data].format(user.cat_name)
+        keyboard = self.get_keyboard(user)
+        self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+
+        seconds = info.treasure_hunt_timer_dict[call.data]
+        self.add_timer(user=user,
+                       chat_id=call.message.chat.id,
+                       message_id=call.message.message_id,
+                       start_timestamp=int(time.time()),
+                       seconds=seconds,
+                       timer_type='treasure_hunt')
+
     def action_callback_back_from_submenu(self, user, call):
         """Returns to main menu from any submenu"""
         user.status = 'idle'
@@ -478,6 +556,43 @@ class WorkingCatTeleBot(TeleBot):
         self.timers.remove(timer)
         self.save_timers()
 
+    def action_complete_treasure_hunt(self, user, timer):
+        """Completes active treasure hunt, removes timer message, sends result message"""
+        treasure_found = False
+        
+        self.delete_message(chat_id=timer['chat_id'],
+                            message_id=timer['message_id'])
+        # Calculate rewards
+        chance = random.randint(1, 100)
+        print(chance)
+        if chance > 20:
+            gems_target = info.treasure_hunt_gems_dict[user.current_treasure_hunt]
+            gems_reward = random.randint(gems_target - 1, gems_target + 1)
+            coins_min = int(info.treasure_hunt_coins_dict[user.current_treasure_hunt] * 0.7)
+            coins_max = int(info.treasure_hunt_coins_dict[user.current_treasure_hunt] * 1.3)
+            coins_reward = random.randint(coins_min, coins_max)
+
+            reply = texts.TREASURE_HUNT_DONE.format(user.cat_name,
+                                                    coins_reward * user.coins_multiplier,
+                                                    gems_reward)
+            keyboard = self.get_keyboard(user)
+            self.send_message(timer['chat_id'], reply, reply_markup=keyboard)
+
+            user.coins += coins_reward * user.coins_multiplier
+            user.gems += gems_reward
+            user.save()
+        else:
+            reply = texts.TREASURE_HUNT_FAILED
+            keyboard = self.get_keyboard(user)
+            self.send_message(timer['chat_id'], reply, reply_markup=keyboard)
+
+        user.is_treasure_hunting = False
+        user.current_treasure_hunt = None
+        user.save()
+
+        self.timers.remove(timer)
+        self.save_timers()
+
     def action_edit_timer(self, timer, current_timestamp):
         """Edits timer message"""
         progress = int(((current_timestamp - timer['start_timestamp']) / 
@@ -485,7 +600,11 @@ class WorkingCatTeleBot(TeleBot):
         remains = timer['start_timestamp'] + timer['seconds'] - current_timestamp
         str_remains = self.get_time_format(remains)
 
-        reply = fill * progress + zfill * (fill_len - progress) + '\n'
+        if timer['timer_type'] == 'work':
+            reply = texts.WORK_STRING_WORKING
+        elif timer['timer_type'] == 'treasure_hunt':
+            reply = texts.TREASURE_HUNT_STRING_HUNTING
+        reply += fill * progress + zfill * (fill_len - progress) + '\n'
         reply += str_remains
         self.edit_message_text(chat_id=timer['chat_id'],
                                message_id=timer['message_id'],
@@ -530,6 +649,9 @@ class WorkingCatTeleBot(TeleBot):
             if (current_timestamp - timer['start_timestamp'] >= timer['seconds'] and
                 timer['timer_type'] == 'work'):
                 self.action_complete_work(user, timer)
+            elif (current_timestamp - timer['start_timestamp'] >= timer['seconds'] and
+                  timer['timer_type'] == 'treasure_hunt'):
+                  self.action_complete_treasure_hunt(user, timer)
             else:
                 self.action_edit_timer(timer, current_timestamp)
     
