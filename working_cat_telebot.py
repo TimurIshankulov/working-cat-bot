@@ -213,7 +213,7 @@ class WorkingCatTeleBot(TeleBot):
         if user.status == 'idle':
             keyboard.row(texts.MENU_STATUS, texts.MENU_WORK)
             keyboard.row(texts.MENU_TOYS, texts.MENU_FOOD, texts.MENU_HOME)
-            keyboard.row(texts.MENU_TREASURE_HUNT)
+            keyboard.row(texts.MENU_TREASURE_HUNT, texts.MENU_TROPHIES)
 
         elif user.status == 'choose_work':
             keyboard = self.get_choose_work_keyboard(user)
@@ -252,13 +252,31 @@ class WorkingCatTeleBot(TeleBot):
     def action_send_status(self, user, chat_id):
         """Sends status to user"""
         user.status = 'idle'
+        user.save()
         if user.is_working:
             text = texts.CAT_STATUS_ON_WORK
+        elif user.is_treasure_hunting:
+            text = texts.CAT_STATUS_ON_TREASURE_HUNT
         else:
             text = texts.CAT_STATUS_IDLE
         reply = texts.STATUS_OVERALL.format(user.cat_name, user.level, text,
                                             user.experience, user.until_level,
                                             user.coins, user.gems)
+        keyboard = self.get_keyboard(user)
+        self.send_message(chat_id, reply, reply_markup=keyboard)
+
+    def action_send_trophies(self, user, chat_id):
+        """Sends the trophies list to user"""
+        user.status = 'idle'
+        user.save()
+
+        reply = ''
+        for key in user.trophies.keys():
+            if user.trophies[key]:
+                reply += texts.TROPHIES_DICT[key] + '\n'
+            else:
+                reply += texts.TROPHY_UNKNOWN + '\n'
+
         keyboard = self.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
@@ -576,19 +594,26 @@ class WorkingCatTeleBot(TeleBot):
 
     def action_complete_treasure_hunt(self, user, timer):
         """Completes active treasure hunt, removes timer message, sends result message"""
-        treasure_found = False
-        
         self.delete_message(chat_id=timer['chat_id'],
                             message_id=timer['message_id'])
         # Calculate rewards
-        chance = random.randint(1, 100)
-        print(chance)
-        if chance > 20:
+        treasure_chance = random.randint(1, 100)
+        if treasure_chance <= 80:
             gems_target = info.treasure_hunt_gems_dict[user.current_treasure_hunt]
             gems_reward = random.randint(gems_target - 1, gems_target + 1)
             coins_min = int(info.treasure_hunt_coins_dict[user.current_treasure_hunt] * 0.7)
             coins_max = int(info.treasure_hunt_coins_dict[user.current_treasure_hunt] * 1.3)
             coins_reward = random.randint(coins_min, coins_max)
+
+            # Check if trophy found
+            trophies_to_roll = {key:value for key, value in user.trophies.items() if value == False}
+            if len(trophies_to_roll) > 0:
+                trophy_chance = random.randint(1, 100)
+                if trophy_chance <= 40:
+                    trophy = random.choice(list(trophies_to_roll.keys()))
+                    user.trophies[trophy] = True
+                    reply = texts.TROPHY_AQUIRED.format(texts.TROPHIES_DICT[trophy])
+                    self.send_message(timer['chat_id'], reply)
 
             reply = texts.TREASURE_HUNT_DONE.format(user.cat_name,
                                                     coins_reward * user.coins_multiplier,

@@ -37,6 +37,9 @@ class User(object):
         self.home_house_acquired = False
         self._coins_multiplier = 1
 
+        self.trophies = {'a': False, 'b': False, 'c': False, 'd': False, 'e': False,
+                         'f': False, 'g': False, 'h': False, 'i': False, 'j': False}
+
     def __str__(self):
         return ('ID: {self.id}, \
                  Username: {self.username}, \

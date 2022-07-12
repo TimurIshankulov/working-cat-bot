@@ -77,6 +77,9 @@ def handle_message(message):
         elif message.text.lower() == 'поиск сокровищ':
             bot.action_choose_treasure_hunt(user, message.chat.id)
 
+        elif message.text.lower() == 'трофеи':
+            bot.action_send_trophies(user, message.chat.id)
+
     else:
         bot.action_unknown_status(user, message.chat.id)
 
