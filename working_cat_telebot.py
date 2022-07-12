@@ -1,4 +1,6 @@
+from cgitb import text
 import datetime
+from nis import cat
 import time
 import logging
 import traceback
@@ -9,8 +11,8 @@ from telebot import TeleBot
 from telebot.types import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
 from telebot import apihelper, util, types
 
-from models import User
-from config import log_file, sqlite_users, sqlite_timers
+from models import User, CatCommittee
+from config import log_file, sqlite_users, sqlite_timers, sqlite_cat_committee
 import texts
 import info
 import utils
@@ -47,7 +49,18 @@ class WorkingCatTeleBot(TeleBot):
             user = db[user_id]
             return user
         except KeyError:
-            return User()
+            return User(id=user_id)
+        finally:
+            db.close()
+
+    def get_cat_committee(self):
+        """Returns Cat Committee instance"""
+        db = SqliteDict(sqlite_cat_committee)
+        try:
+            cat_committee = db['cat_committee']
+            return cat_committee
+        except KeyError:
+            return CatCommittee()
         finally:
             db.close()
 
@@ -214,6 +227,7 @@ class WorkingCatTeleBot(TeleBot):
             keyboard.row(texts.MENU_STATUS, texts.MENU_WORK)
             keyboard.row(texts.MENU_TOYS, texts.MENU_FOOD, texts.MENU_HOME)
             keyboard.row(texts.MENU_TREASURE_HUNT, texts.MENU_TROPHIES)
+            keyboard.row(texts.MENU_CAT_COMMITTEE)
 
         elif user.status == 'choose_work':
             keyboard = self.get_choose_work_keyboard(user)
@@ -229,6 +243,10 @@ class WorkingCatTeleBot(TeleBot):
 
         elif user.status == 'choose_treasure_hunt':
             keyboard = self.get_choose_treasure_hunt_keyboard(user)
+
+        elif user.status == 'cat_committee':
+            keyboard.row(texts.MENU_CAT_COMMITTEE_STATUS, texts.MENU_CAT_COMMITTEE_DONATE)
+            keyboard.row(texts.MENU_CAT_COMMITTEE_BACK)
         
         return keyboard
 
@@ -277,6 +295,20 @@ class WorkingCatTeleBot(TeleBot):
             else:
                 reply += texts.TROPHY_UNKNOWN + '\n'
 
+        keyboard = self.get_keyboard(user)
+        self.send_message(chat_id, reply, reply_markup=keyboard)
+
+    def action_send_cat_committee_status(self, user, chat_id):
+        """Sends status of the cat committee"""
+        user.status = 'cat_committee'
+        user.save()
+
+        cat_committee = self.get_cat_committee()
+
+        reply = texts.CAT_COMMITTEE_STATUS.format(cat_committee.level,
+                                                  cat_committee.experience,
+                                                  cat_committee.until_level,
+                                                  cat_committee.coins)
         keyboard = self.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
@@ -339,35 +371,6 @@ class WorkingCatTeleBot(TeleBot):
             reply = texts.TREASURE_HUNT_LOW_LEVEL
             keyboard = self.get_keyboard(user)
             self.send_message(chat_id, reply, reply_markup=keyboard)
-
-    def action_callback_take_work(self, user, call):
-        """Assigns cat for work"""
-        user.status = 'idle'
-        user.save()
-        if user.is_working:
-            reply = texts.WORK_ALREADY_WORKING.format(user.cat_name)
-            keyboard = self.get_keyboard(user)
-            self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                   text=call.message.text, reply_markup=None)
-            self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
-            return
-        user.is_working = True
-        user.current_work = call.data
-        user.save()
-        self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                               text=call.message.text, reply_markup=None)
-
-        reply = texts.WORK_KIND_DICT[call.data].format(user.cat_name)
-        keyboard = self.get_keyboard(user)
-        self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
-
-        seconds = round(info.work_timer_dict[call.data] * user.speed_multiplier)
-        self.add_timer(user=user,
-                       chat_id=call.message.chat.id,
-                       message_id=call.message.message_id,
-                       start_timestamp=int(time.time()),
-                       seconds=seconds,
-                       timer_type='work')
 
     def action_callback_acquire_toy(self, user, call):
         """Tries to acquire a toy, sends result message"""
@@ -532,6 +535,66 @@ class WorkingCatTeleBot(TeleBot):
         keyboard = self.get_keyboard(user)
         self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
+    def action_callback_back_from_submenu(self, user, call):
+        """Returns to main menu from any submenu"""
+        user.status = 'idle'
+        user.save()
+        self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                               text=call.message.text, reply_markup=None)
+        reply = texts.BACK_TO_MAIN_MENU
+        keyboard = self.get_keyboard(user)
+        self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+
+    def action_callback_take_work(self, user, call):
+        """Assigns cat for work"""
+        user.status = 'idle'
+        user.save()
+        if user.is_working:
+            reply = texts.WORK_ALREADY_WORKING.format(user.cat_name)
+            keyboard = self.get_keyboard(user)
+            self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                   text=call.message.text, reply_markup=None)
+            self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+            return
+        user.is_working = True
+        user.current_work = call.data
+        user.save()
+        self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                               text=call.message.text, reply_markup=None)
+
+        reply = texts.WORK_KIND_DICT[call.data].format(user.cat_name)
+        keyboard = self.get_keyboard(user)
+        self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+
+        seconds = round(info.work_timer_dict[call.data] * user.speed_multiplier)
+        self.add_timer(user=user,
+                       chat_id=call.message.chat.id,
+                       message_id=call.message.message_id,
+                       start_timestamp=int(time.time()),
+                       seconds=seconds,
+                       timer_type='work')
+
+    def action_complete_work(self, user, timer):
+        """Completes active work, removes timer message, sends result message"""
+        user.is_working = False
+        self.delete_message(chat_id=timer['chat_id'],
+                            message_id=timer['message_id'])
+
+        reply = texts.WORK_DONE.format(
+            user.cat_name,
+            info.work_experience_dict[user.current_work] * user.experience_multiplier,
+            info.work_coins_dict[user.current_work] * user.coins_multiplier)
+        keyboard = self.get_keyboard(user)
+        self.send_message(timer['chat_id'], reply, reply_markup=keyboard)
+
+        user.experience += info.work_experience_dict[user.current_work] * user.experience_multiplier
+        user.coins += info.work_coins_dict[user.current_work] * user.coins_multiplier
+        user.current_work = None
+        user.save()
+
+        self.timers.remove(timer)
+        self.save_timers()
+
     def action_callback_start_treasure_hunt(self, user, call):
         """Assigns cat for treasure hunt"""
         user.status = 'idle'
@@ -560,37 +623,6 @@ class WorkingCatTeleBot(TeleBot):
                        start_timestamp=int(time.time()),
                        seconds=seconds,
                        timer_type='treasure_hunt')
-
-    def action_callback_back_from_submenu(self, user, call):
-        """Returns to main menu from any submenu"""
-        user.status = 'idle'
-        user.save()
-        self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                               text=call.message.text, reply_markup=None)
-        reply = texts.BACK_TO_MAIN_MENU
-        keyboard = self.get_keyboard(user)
-        self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
-
-    def action_complete_work(self, user, timer):
-        """Completes active work, removes timer message, sends result message"""
-        user.is_working = False
-        self.delete_message(chat_id=timer['chat_id'],
-                            message_id=timer['message_id'])
-
-        reply = texts.WORK_DONE.format(
-            user.cat_name,
-            info.work_experience_dict[user.current_work] * user.experience_multiplier,
-            info.work_coins_dict[user.current_work] * user.coins_multiplier)
-        keyboard = self.get_keyboard(user)
-        self.send_message(timer['chat_id'], reply, reply_markup=keyboard)
-
-        user.experience += info.work_experience_dict[user.current_work] * user.experience_multiplier
-        user.coins += info.work_coins_dict[user.current_work] * user.coins_multiplier
-        user.current_work = None
-        user.save()
-
-        self.timers.remove(timer)
-        self.save_timers()
 
     def action_complete_treasure_hunt(self, user, timer):
         """Completes active treasure hunt, removes timer message, sends result message"""
