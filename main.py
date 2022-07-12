@@ -50,7 +50,7 @@ def handle_callback(call):
                            'back_from_choosing_food', 'back_from_choosing_home',
                            'back_from_choosing_treasure_hunt']:
             bot.action_callback_back_from_submenu(user, call)
-            
+
         elif call.data == 'back_from_choosing_donate':
             bot.action_callback_to_cat_committee_menu(user, call)
 
@@ -97,8 +97,7 @@ def handle_message(message):
             bot.action_choose_donate(user, message.chat.id)
 
         elif message.text.lower() == 'рейтинг':
-            pass
-            #bot.action_choose_toys(user, message.chat.id)
+            bot.action_send_rating(user, message.chat.id)
 
         elif message.text.lower() == 'назад':
             bot.action_back_from_cat_committee(user, message.chat.id)

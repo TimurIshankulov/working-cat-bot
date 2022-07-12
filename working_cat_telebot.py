@@ -762,6 +762,24 @@ class WorkingCatTeleBot(TeleBot):
         keyboard = self.get_keyboard(user)
         self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
+    def action_send_rating(self, user, chat_id):
+        """Sends rating table with top donaters"""
+        user.status = 'cat_committee'
+        user.save()
+        keyboard = self.get_keyboard(user)
+
+        rating = []
+        db = SqliteDict(sqlite_users)
+        for user in db:
+            rating.append([db[user].cat_name, db[user].experience_donated, db[user].coins_donated])
+        if len(rating) < 10:
+            for i in range(len(rating), 10):
+                rating.append([texts.RATING_UNKNOWN_PLAYER, 0, 0])
+
+        rating = sorted(rating, key=lambda x: x[2], reverse=True)
+        reply = texts.RATING_TABLE.format(x=rating[:10])
+        self.send_message(chat_id, reply, reply_markup=keyboard, parse_mode='Markdown')
+
     def action_back_from_cat_committee(self, user, chat_id):
         """Back from Cat Committee menu to the main menu"""
         user.status = 'idle'

@@ -80,7 +80,7 @@ MENU_CAT_COMMITTEE_RATING = 'Рейтинг'
 MENU_CAT_COMMITTEE_TO_MENU = 'Возврат в меню Котовского комитета.'
 
 WORK_CHOOSE_WORK = 'Выберите ' + SYMBOL_WORK + ' работу для своего кота. Чем сложнее работа, тем больше она вознаграждается!'
-WORK_STRING_WORKING = SYMBOL_WORK + ' Работаем...\n'
+WORK_STRING_WORKING = SYMBOL_WORK + ' Работаем...\n\n'
 WORK_WASH_DISH_STARTED = '{0} приступил к ' + SYMBOL_WASH_DISH + ' мытью посуды. Помогаем кожаным мешкам!'
 WORK_WASH_DISH_DESC = SYMBOL_WASH_DISH + ' Мыть посуду ({0} мин.)'
 WORK_VACUUM_STARTED = '{0} начал ' + SYMBOL_VACUUM + ' пылесосить квартиру. Чистота в доме важна для кошаков!'
@@ -146,7 +146,7 @@ HOME_LOW_LEVEL = SYMBOL_ATTENTION + 'Покупка домов доступна 
 
 TREASURE_HUNT_CHOOSE_TREASURE_HUNT = 'Выберите одну из доступных активностей по ' + SYMBOL_TREASURE + \
 ' поиску сокровищ! Награды увеличиваются для более сложных поисков.'
-TREASURE_HUNT_STRING_HUNTING = SYMBOL_TREASURE + ' Ищем сокровища...\n'
+TREASURE_HUNT_STRING_HUNTING = SYMBOL_TREASURE + ' Ищем сокровища...\n\n'
 TREASURE_HUNT_SOLO_STARTED = '{0} приступил к ' + SYMBOL_SOLO + ' поиску сокровищ в одиночку, используя металлодетектор! Постараемся найти хоть что-то ценное...'
 TREASURE_HUNT_SOLO_DESC = SYMBOL_SOLO + ' Поиск с металлодетектором (60 мин.)'
 TREASURE_HUNT_TREASURE_STARTED = '{0} со своим другом воспользуется картой сокровищ, чтобы найти и \
@@ -202,3 +202,16 @@ CAT_COMMITTEE_DONATE_RENOVATION = 'Капитальный ремонт (' + SYMB
 CAT_COMMITTEE_DONATE_SUCCESSFUL = SYMBOL_COINS + ' Вы успешно пожертвовали Котовскому комитету {0} монет.'
 CAT_COMMITTEE_INSUFFICIENT_COINS = SYMBOL_COINS + ' Недостаточно монет для пожертвования!'
 CAT_COMMITTEE_ERROR_OCCURRED = 'Произошла ошибка пожертвования монет.'
+
+RATING_TABLE = '`\
+1) {x[0][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[0][1]} ' + SYMBOL_COINS + '{x[0][2]}\n\
+2) {x[1][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[1][1]} ' + SYMBOL_COINS + '{x[1][2]}\n\
+3) {x[2][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[2][1]} ' + SYMBOL_COINS + '{x[2][2]}\n\
+4) {x[3][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[3][1]} ' + SYMBOL_COINS + '{x[3][2]}\n\
+5) {x[4][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[4][1]} ' + SYMBOL_COINS + '{x[4][2]}\n\
+6) {x[5][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[5][1]} ' + SYMBOL_COINS + '{x[5][2]}\n\
+7) {x[6][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[6][1]} ' + SYMBOL_COINS + '{x[6][2]}\n\
+8) {x[7][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[7][1]} ' + SYMBOL_COINS + '{x[7][2]}\n\
+9) {x[8][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[8][1]} ' + SYMBOL_COINS + '{x[8][2]}\n\
+10){x[9][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[9][1]} ' + SYMBOL_COINS + '{x[9][2]}`'
+RATING_UNKNOWN_PLAYER = 'Неизвестный кот'
