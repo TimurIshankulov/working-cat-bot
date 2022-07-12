@@ -16,3 +16,5 @@ home_gem_cost_dict = {'home_small': 10, 'home_flat': 25, 'home_house': 50}
 treasure_hunt_timer_dict = {'solo': 15, 'treasure': 15, 'expedition': 15}
 treasure_hunt_coins_dict = {'solo': 10, 'treasure': 20, 'expedition': 30}
 treasure_hunt_gems_dict = {'solo': 2, 'treasure': 4, 'expedition': 6}
+
+donate_cost_dict = {'donate_tea': 50, 'donate_paper': 100, 'donate_renovation': 200}

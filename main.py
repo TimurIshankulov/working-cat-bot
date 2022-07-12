@@ -43,10 +43,16 @@ def handle_callback(call):
         elif call.data in ['solo', 'treasure', 'expedition']:
             bot.action_callback_start_treasure_hunt(user, call)
 
+        elif call.data in ['donate_tea', 'donate_paper', 'donate_renovation']:
+            bot.action_callback_donate_coins(user, call)
+
         elif call.data in ['back_from_choosing_work', 'back_from_choosing_toy',
                            'back_from_choosing_food', 'back_from_choosing_home',
                            'back_from_choosing_treasure_hunt']:
             bot.action_callback_back_from_submenu(user, call)
+            
+        elif call.data == 'back_from_choosing_donate':
+            bot.action_callback_to_cat_committee_menu(user, call)
 
 
 @bot.message_handler(content_types=['text'])
@@ -88,8 +94,7 @@ def handle_message(message):
             bot.action_send_cat_committee_status(user, message.chat.id)
 
         elif message.text.lower() == 'пожертвовать монеты':
-            pass
-            #bot.action_choose_work(user, message.chat.id)
+            bot.action_choose_donate(user, message.chat.id)
 
         elif message.text.lower() == 'рейтинг':
             pass
@@ -106,6 +111,6 @@ while True:
     try:
         bot.polling(non_stop=True, timeout=5, long_polling_timeout=5)
     except Exception as _ex:
-        print('Exception occured:')
+        print('Exception occurred:')
         print(_ex)
         time.sleep(10)

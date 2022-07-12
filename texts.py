@@ -77,6 +77,7 @@ MENU_CAT_COMMITTEE_STATUS = 'Статус комитета'
 MENU_CAT_COMMITTEE_DONATE = 'Пожертвовать монеты'
 MENU_CAT_COMMITTEE_BACK = 'Назад'
 MENU_CAT_COMMITTEE_RATING = 'Рейтинг'
+MENU_CAT_COMMITTEE_TO_MENU = 'Возврат в меню Котовского комитета.'
 
 WORK_CHOOSE_WORK = 'Выберите ' + SYMBOL_WORK + ' работу для своего кота. Чем сложнее работа, тем больше она вознаграждается!'
 WORK_STRING_WORKING = SYMBOL_WORK + ' Работаем...\n'
@@ -194,3 +195,10 @@ CAT_COMMITTEE_STATUS = SYMBOL_CAT + ' Котовский комитет\n' + \
 SYMBOL_LEVEL + ' Уровень: {0}\n' + \
 SYMBOL_EXPERIENCE + ' Опыт: {1:.1f}/{2}\n' + \
 SYMBOL_COINS + ' Казна: {3:.1f}'
+CAT_COMMITTEE_CHOOSE_DONATE = 'Выберите сумму для пожертвования.'
+CAT_COMMITTEE_DONATE_TEA = 'На чай с печеньками  (' + SYMBOL_COINS + ' 50)'
+CAT_COMMITTEE_DONATE_PAPER = 'Бумага для принтера  (' + SYMBOL_COINS + ' 100)'
+CAT_COMMITTEE_DONATE_RENOVATION = 'Капитальный ремонт (' + SYMBOL_COINS + ' 200)'
+CAT_COMMITTEE_DONATE_SUCCESSFUL = SYMBOL_COINS + ' Вы успешно пожертвовали Котовскому комитету {0} монет.'
+CAT_COMMITTEE_INSUFFICIENT_COINS = SYMBOL_COINS + ' Недостаточно монет для пожертвования!'
+CAT_COMMITTEE_ERROR_OCCURRED = 'Произошла ошибка пожертвования монет.'

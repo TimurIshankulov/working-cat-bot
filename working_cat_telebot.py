@@ -218,6 +218,30 @@ class WorkingCatTeleBot(TeleBot):
         keyboard.add(inline_back)
         return keyboard
 
+    def get_choose_donate_keyboard(self, user):
+        keyboard = InlineKeyboardMarkup()
+
+        inline_tea = InlineKeyboardButton(
+            text=texts.CAT_COMMITTEE_DONATE_TEA,
+            callback_data='donate_tea')
+        keyboard.add(inline_tea)
+
+        inline_paper = InlineKeyboardButton(
+            text=texts.CAT_COMMITTEE_DONATE_PAPER,
+            callback_data='donate_paper')
+        keyboard.add(inline_paper)
+
+        inline_renovation = InlineKeyboardButton(
+            text=texts.CAT_COMMITTEE_DONATE_RENOVATION,
+            callback_data='donate_renovation')
+        keyboard.add(inline_renovation)
+
+        inline_back = InlineKeyboardButton(
+            text=texts.MENU_BACK,
+            callback_data='back_from_choosing_donate')
+        keyboard.add(inline_back)
+        return keyboard
+
     def get_keyboard(self, user):
         """Returns keyboard depending on <user.status>"""
         keyboard = ReplyKeyboardMarkup(True, True)
@@ -245,6 +269,9 @@ class WorkingCatTeleBot(TeleBot):
         elif user.status == 'cat_committee':
             keyboard.row(texts.MENU_CAT_COMMITTEE_STATUS, texts.MENU_CAT_COMMITTEE_DONATE)
             keyboard.row(texts.MENU_CAT_COMMITTEE_RATING, texts.MENU_CAT_COMMITTEE_BACK)
+
+        elif user.status == 'choose_donate':
+            keyboard = self.get_choose_donate_keyboard(user)
         
         return keyboard
 
@@ -573,6 +600,7 @@ class WorkingCatTeleBot(TeleBot):
         experience = info.work_experience_dict[user.current_work] * user.experience_multiplier
         coins = info.work_coins_dict[user.current_work] * user.coins_multiplier
         user.experience += experience
+        user.experience_donated += experience
         user.coins += coins
         user.is_working = False
         user.current_work = None
@@ -667,6 +695,16 @@ class WorkingCatTeleBot(TeleBot):
         keyboard = self.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
+    def action_callback_to_cat_committee_menu(self, user, call):
+        """Returns to Cat Committee menu from submenu"""
+        user.status = 'cat_committee'
+        user.save()
+        self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                               text=call.message.text, reply_markup=None)
+        reply = texts.MENU_CAT_COMMITTEE_TO_MENU
+        keyboard = self.get_keyboard(user)
+        self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
+
     def action_send_cat_committee_status(self, user, chat_id):
         """Sends status of the cat committee"""
         user.status = 'cat_committee'
@@ -680,6 +718,49 @@ class WorkingCatTeleBot(TeleBot):
                                                   cat_committee.coins)
         keyboard = self.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
+
+    def action_choose_donate(self, user, chat_id):
+        """Sends message with donate choices"""
+        user.status = 'choose_donate'
+        user.save()
+        reply = texts.CAT_COMMITTEE_CHOOSE_DONATE
+        keyboard = self.get_keyboard(user)
+        self.send_message(chat_id, reply, reply_markup=keyboard)
+
+    def action_callback_donate_coins(self, user, call):
+        """Gives coins away to the Cat Committee"""
+        insufficient_coins = False
+        donate_successful = False
+        user.status = 'cat_committee'
+        user.save()        
+
+        self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                               text=call.message.text, reply_markup=None)
+
+        donate = call.data
+        donate_coin_cost = info.donate_cost_dict[donate]
+
+        if user.coins >= donate_coin_cost:
+            user.coins -= donate_coin_cost
+            user.coins_donated += donate_coin_cost
+            user.save()
+
+            cat_committee = self.get_cat_committee()
+            cat_committee.coins += donate_coin_cost
+            cat_committee.save()
+            donate_successful = True
+        else:
+            insufficient_coins = True
+
+        if donate_successful:
+            reply = texts.CAT_COMMITTEE_DONATE_SUCCESSFUL.format(donate_coin_cost)
+        elif insufficient_coins:
+            reply = texts.CAT_COMMITTEE_INSUFFICIENT_COINS
+        else:
+            reply = texts.CAT_COMMITTEE_ERROR_OCCURRED
+
+        keyboard = self.get_keyboard(user)
+        self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
     def action_back_from_cat_committee(self, user, chat_id):
         """Back from Cat Committee menu to the main menu"""
