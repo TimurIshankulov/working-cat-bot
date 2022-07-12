@@ -1,9 +1,52 @@
 from sqlitedict import SqliteDict
 from config import sqlite_users
 
-class User(object):
+class Base():
+    def __init__(self) -> None:
+        self._level = 1
+        self._experience = 0.0
+        self._until_level = 10
+        self.experience_coef_level = 10
+        self.coins = 0.0
 
+    @property
+    def level(self):
+        return self._level
+
+    @level.setter
+    def level(self, level):
+        self._level = level
+
+    @property
+    def experience(self):
+        return self._experience
+
+    @experience.setter
+    def experience(self, experience):
+        self._experience = experience
+        if self._experience >= self._until_level:
+            self.level_up()
+
+    @property
+    def until_level(self):
+        return self._until_level
+
+    @until_level.setter
+    def until_level(self, until_level):
+        self._until_level = until_level
+
+    def level_up(self):
+        while self._experience >= self.until_level:
+            self._experience = self._experience - self.level * self.experience_coef_level
+            self.level += 1
+            self.until_level = self.level * self.experience_coef_level
+
+
+class User(Base):
     def __init__(self, id='', username='', fullname='', chat_id=0, cat_name='', status='new'):
+        Base.__init__(self)
+        self.experience_coef_level = 10
+
         self.id = id
         self.username = username
         self.fullname = fullname
@@ -16,10 +59,6 @@ class User(object):
         self.current_treasure_hunt = None
         self.is_treasure_hunting = False
 
-        self._level = 1
-        self._experience = 0.0
-        self._until_level = 10
-        self.coins = 0.0
         self.gems = 0
 
         self.toy_mouse_acquired = False
@@ -51,32 +90,6 @@ class User(object):
     def log_str(self):
         """Returns log string"""
         return '{self.fullname} <{self.username}>'.format(self=self)
-
-    @property
-    def level(self):
-        return self._level
-
-    @level.setter
-    def level(self, level):
-        self._level = level
-
-    @property
-    def experience(self):
-        return self._experience
-
-    @experience.setter
-    def experience(self, experience):
-        self._experience = experience
-        if self._experience >= self._until_level:
-            self.level_up()
-
-    @property
-    def until_level(self):
-        return self._until_level
-
-    @until_level.setter
-    def until_level(self, until_level):
-        self._until_level = until_level
 
     @property
     def experience_multiplier(self):
@@ -130,8 +143,8 @@ class User(object):
         db.commit()
         db.close()
 
-    def level_up(self):
-        while self._experience >= self.until_level:
-            self._experience = self._experience - self.level * 10
-            self.level += 1
-            self.until_level = self.level * 10
+
+class CatCommittee(Base):
+    def __init__(self) -> None:
+        Base.__init__(self)
+        self.experience_coef_level = 100
