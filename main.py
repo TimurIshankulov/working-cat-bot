@@ -80,6 +80,24 @@ def handle_message(message):
         elif message.text.lower() == 'трофеи':
             bot.action_send_trophies(user, message.chat.id)
 
+        elif message.text.lower() == 'котовский комитет':
+            bot.action_send_cat_committee_greeting(user, message.chat.id)
+    
+    elif user.status in info.statuses_for_cat_committee_menu:
+        if message.text.lower() == 'статус комитета':
+            bot.action_send_cat_committee_status(user, message.chat.id)
+
+        elif message.text.lower() == 'пожертвовать монеты':
+            pass
+            #bot.action_choose_work(user, message.chat.id)
+
+        elif message.text.lower() == 'рейтинг':
+            pass
+            #bot.action_choose_toys(user, message.chat.id)
+
+        elif message.text.lower() == 'назад':
+            bot.action_back_from_cat_committee(user, message.chat.id)
+
     else:
         bot.action_unknown_status(user, message.chat.id)
 

@@ -1,6 +1,4 @@
-from cgitb import text
 import datetime
-from nis import cat
 import time
 import logging
 import traceback
@@ -246,7 +244,7 @@ class WorkingCatTeleBot(TeleBot):
 
         elif user.status == 'cat_committee':
             keyboard.row(texts.MENU_CAT_COMMITTEE_STATUS, texts.MENU_CAT_COMMITTEE_DONATE)
-            keyboard.row(texts.MENU_CAT_COMMITTEE_BACK)
+            keyboard.row(texts.MENU_CAT_COMMITTEE_RATING, texts.MENU_CAT_COMMITTEE_BACK)
         
         return keyboard
 
@@ -295,20 +293,6 @@ class WorkingCatTeleBot(TeleBot):
             else:
                 reply += texts.TROPHY_UNKNOWN + '\n'
 
-        keyboard = self.get_keyboard(user)
-        self.send_message(chat_id, reply, reply_markup=keyboard)
-
-    def action_send_cat_committee_status(self, user, chat_id):
-        """Sends status of the cat committee"""
-        user.status = 'cat_committee'
-        user.save()
-
-        cat_committee = self.get_cat_committee()
-
-        reply = texts.CAT_COMMITTEE_STATUS.format(cat_committee.level,
-                                                  cat_committee.experience,
-                                                  cat_committee.until_level,
-                                                  cat_committee.coins)
         keyboard = self.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
@@ -576,7 +560,6 @@ class WorkingCatTeleBot(TeleBot):
 
     def action_complete_work(self, user, timer):
         """Completes active work, removes timer message, sends result message"""
-        user.is_working = False
         self.delete_message(chat_id=timer['chat_id'],
                             message_id=timer['message_id'])
 
@@ -587,10 +570,17 @@ class WorkingCatTeleBot(TeleBot):
         keyboard = self.get_keyboard(user)
         self.send_message(timer['chat_id'], reply, reply_markup=keyboard)
 
-        user.experience += info.work_experience_dict[user.current_work] * user.experience_multiplier
-        user.coins += info.work_coins_dict[user.current_work] * user.coins_multiplier
+        experience = info.work_experience_dict[user.current_work] * user.experience_multiplier
+        coins = info.work_coins_dict[user.current_work] * user.coins_multiplier
+        user.experience += experience
+        user.coins += coins
+        user.is_working = False
         user.current_work = None
         user.save()
+
+        cat_committee = self.get_cat_committee()
+        cat_committee.experience += experience
+        cat_committee.save()
 
         self.timers.remove(timer)
         self.save_timers()
@@ -667,6 +657,38 @@ class WorkingCatTeleBot(TeleBot):
 
         self.timers.remove(timer)
         self.save_timers()
+
+    def action_send_cat_committee_greeting(self, user, chat_id):
+        """Sends status of the cat committee"""
+        user.status = 'cat_committee'
+        user.save()
+
+        reply = texts.CAT_COMMITTEE_GREETING
+        keyboard = self.get_keyboard(user)
+        self.send_message(chat_id, reply, reply_markup=keyboard)
+
+    def action_send_cat_committee_status(self, user, chat_id):
+        """Sends status of the cat committee"""
+        user.status = 'cat_committee'
+        user.save()
+
+        cat_committee = self.get_cat_committee()
+
+        reply = texts.CAT_COMMITTEE_STATUS.format(cat_committee.level,
+                                                  cat_committee.experience,
+                                                  cat_committee.until_level,
+                                                  cat_committee.coins)
+        keyboard = self.get_keyboard(user)
+        self.send_message(chat_id, reply, reply_markup=keyboard)
+
+    def action_back_from_cat_committee(self, user, chat_id):
+        """Back from Cat Committee menu to the main menu"""
+        user.status = 'idle'
+        user.save()
+
+        reply = texts.BACK_TO_MAIN_MENU
+        keyboard = self.get_keyboard(user)
+        self.send_message(chat_id, reply, reply_markup=keyboard)
 
     def action_edit_timer(self, timer, current_timestamp):
         """Edits timer message"""

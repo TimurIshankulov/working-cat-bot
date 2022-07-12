@@ -1,11 +1,11 @@
 from sqlitedict import SqliteDict
-from config import sqlite_users
+from config import sqlite_users, sqlite_cat_committee
 
 class Base():
     def __init__(self) -> None:
         self._level = 1
         self._experience = 0.0
-        self._until_level = 10
+        self.until_level = 10
         self.experience_coef_level = 10
         self.coins = 0.0
 
@@ -24,16 +24,8 @@ class Base():
     @experience.setter
     def experience(self, experience):
         self._experience = experience
-        if self._experience >= self._until_level:
+        if self._experience >= self.until_level:
             self.level_up()
-
-    @property
-    def until_level(self):
-        return self._until_level
-
-    @until_level.setter
-    def until_level(self, until_level):
-        self._until_level = until_level
 
     def level_up(self):
         while self._experience >= self.until_level:
@@ -75,6 +67,9 @@ class User(Base):
         self.home_flat_acquired = False
         self.home_house_acquired = False
         self._coins_multiplier = 1
+
+        self.experience_donated = 0
+        self.coins_donated = 0
 
         self.trophies = {'a': False, 'b': False, 'c': False, 'd': False, 'e': False,
                          'f': False, 'g': False, 'h': False, 'i': False, 'j': False}
@@ -147,4 +142,11 @@ class User(Base):
 class CatCommittee(Base):
     def __init__(self) -> None:
         Base.__init__(self)
+        self.until_level = 100
         self.experience_coef_level = 100
+
+    def save(self):
+        db = SqliteDict(sqlite_cat_committee)
+        db['cat_committee'] = self
+        db.commit()
+        db.close()
