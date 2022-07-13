@@ -1,6 +1,6 @@
 statuses_for_main_menu = ['idle', 'on_work', 'choose_work', 'choose_toys', 'choose_food',
                           'choose_home', 'choose_treasure_hunt']
-statuses_for_cat_committee_menu = ['cat_committee', 'choose_donation']
+statuses_for_cat_committee_menu = ['cat_committee', 'choose_donate']
 #work_timer_dict = {'wash_dish': 15, 'vacuum': 300, 'bake': 60, 'tiktok': 15,
 #                   'advertisement': 15}
 work_timer_dict = {'wash_dish': 10*60, 'vacuum': 20*60, 'bake': 30*60, 'tiktok': 40*60,
