@@ -335,7 +335,9 @@ class WorkingCatTeleBot(TeleBot):
         """Sends a message with error and changes the status to idle"""
         user.status = 'idle'
         user.save()
-        self.send_message(chat_id, texts.REPLY_UNKNOWN_STATUS)
+        reply = texts.REPLY_UNKNOWN_STATUS
+        keyboard = self.get_keyboard(user)
+        self.send_message(chat_id, reply, reply_markup=keyboard)
 
     def action_choose_work(self, user, chat_id):
         """Sends message with work choices"""
