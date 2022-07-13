@@ -185,6 +185,13 @@ class WorkingCatTeleBot(TeleBot):
                 callback_data='home_house')
             keyboard.add(inline_house)
 
+        if user.level >= 20:
+            inline_mansion = InlineKeyboardButton(
+                text=texts.HOME_MANSION_DESC.format(info.home_coin_cost_dict['home_mansion'],
+                                                    info.home_gem_cost_dict['home_mansion']),
+                callback_data='home_mansion')
+            keyboard.add(inline_mansion)
+
         inline_back = InlineKeyboardButton(
             text=texts.MENU_BACK,
             callback_data='back_from_choosing_home')
@@ -528,6 +535,18 @@ class WorkingCatTeleBot(TeleBot):
                     user.coins -= home_coin_cost
                     user.gems -= home_gem_cost
                     user.home_house_acquired = True
+                    home_acquired = True
+                else:
+                    insufficient_gems = True
+            else:
+                insufficient_coins = True
+
+        elif home == 'home_mansion' and not user.home_mansion_acquired:
+            if user.coins >= home_coin_cost:
+                if user.gems >= home_gem_cost:
+                    user.coins -= home_coin_cost
+                    user.gems -= home_gem_cost
+                    user.home_mansion_acquired = True
                     home_acquired = True
                 else:
                     insufficient_gems = True

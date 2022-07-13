@@ -66,6 +66,7 @@ class User(Base):
         self.home_small_acquired = False
         self.home_flat_acquired = False
         self.home_house_acquired = False
+        self.home_mansion_acquired = False
         self._coins_multiplier = 1
 
         self.experience_donated = 0

@@ -32,6 +32,7 @@ SYMBOL_HOME = '🏡'
 SYMBOL_SMALL = '🏠'
 SYMBOL_FLAT = '🏠'
 SYMBOL_HOUSE = '🏠'
+SYMBOL_MANSION = '🏠'
 
 SYMBOL_TREASURE = '🗝'
 SYMBOL_SOLO = '🪙'
@@ -136,9 +137,14 @@ HOME_FLAT_ACQUIRED = 'Поздравляем! Вы приобрели ' + SYMBOL
 HOME_FLAT_DESC = SYMBOL_FLAT + ' Своя квартира (' + SYMBOL_COINS + ' {0}, ' + SYMBOL_GEMS + ' {1})'
 HOME_HOUSE_ACQUIRED = 'Поздравляем! Вы приобрели ' + SYMBOL_HOUSE + ' двухэтажный коттедж и получили постоянный бонус + 100% к получаемым монетам!'
 HOME_HOUSE_DESC = SYMBOL_HOUSE + ' Двухэтажный коттедж (' + SYMBOL_COINS + ' {0}, ' + SYMBOL_GEMS + ' {1})'
+HOME_MANSION_ACQUIRED = 'Поздравляем! Вы приобрели ' + SYMBOL_HOUSE + ' особняк! Можете гордится \
+собой, это великое достижение для ' + SYMBOL_CAT + ' котика! Игра пройдена, но Вы можете \
+продолжать играть, увеличивая свой рейтинг в Котовском комитете.'
+HOME_MANSION_DESC = SYMBOL_MANSION + ' Особняк (' + SYMBOL_COINS + ' {0}, ' + SYMBOL_GEMS + ' {1})'
 HOME_KIND_DICT = {'home_small': HOME_SMALL_ACQUIRED,
                   'home_flat': HOME_FLAT_ACQUIRED,
-                  'home_house': HOME_HOUSE_ACQUIRED}
+                  'home_house': HOME_HOUSE_ACQUIRED,
+                  'home_mansion': HOME_MANSION_ACQUIRED}
 HOME_ALREADY_ACQUIRED = SYMBOL_HOME + ' Вы уже приобрели этот дом!'
 HOME_INSUFFICIENT_COINS = SYMBOL_COINS + ' Недостаточно монет для покупки!'
 HOME_INSUFFICIENT_GEMS = SYMBOL_GEMS + ' Недостаточно самоцветов для покупки!'

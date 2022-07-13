@@ -37,7 +37,7 @@ def handle_callback(call):
         elif call.data in ['food_fish', 'food_premium', 'food_shrimp']:
             bot.action_callback_acquire_food(user, call)
 
-        elif call.data in ['home_small', 'home_flat', 'home_house']:
+        elif call.data in ['home_small', 'home_flat', 'home_house', 'home_mansion']:
             bot.action_callback_acquire_home(user, call)
 
         elif call.data in ['solo', 'treasure', 'expedition']:
