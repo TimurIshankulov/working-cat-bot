@@ -60,7 +60,7 @@ def handle_message(message):
     """Handler for text messages from users"""
     user_id = str(message.from_user.id)
     user = bot.get_user(user_id)
-    print(user.status)
+
     if user.status == 'new':
         bot.action_get_cat_name(user, message)
 
