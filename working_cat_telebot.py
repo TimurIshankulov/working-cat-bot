@@ -1,3 +1,4 @@
+from cgitb import text
 import datetime
 import time
 import logging
@@ -766,18 +767,21 @@ class WorkingCatTeleBot(TeleBot):
         """Sends rating table with top donaters"""
         user.status = 'cat_committee'
         user.save()
-        keyboard = self.get_keyboard(user)
 
         rating = []
         db = SqliteDict(sqlite_users)
-        for user in db:
-            rating.append([db[user].cat_name, db[user].experience_donated, db[user].coins_donated])
+        for user_key in db:
+            rating.append([db[user_key].cat_name,
+                           db[user_key].experience_donated,
+                           db[user_key].coins_donated])
         if len(rating) < 10:
             for i in range(len(rating), 10):
                 rating.append([texts.RATING_UNKNOWN_PLAYER, 0, 0])
 
         rating = sorted(rating, key=lambda x: x[2], reverse=True)
         reply = texts.RATING_TABLE.format(x=rating[:10])
+        reply += texts.RATING_YOU_RATING.format(user.experience_donated, user.coins_donated)
+        keyboard = self.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard, parse_mode='Markdown')
 
     def action_back_from_cat_committee(self, user, chat_id):

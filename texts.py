@@ -214,4 +214,5 @@ RATING_TABLE = '`\
 8) {x[7][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[7][1]} ' + SYMBOL_COINS + '{x[7][2]}\n\
 9) {x[8][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[8][1]} ' + SYMBOL_COINS + '{x[8][2]}\n\
 10){x[9][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[9][1]} ' + SYMBOL_COINS + '{x[9][2]}`'
+RATING_YOU_RATING = '\n\n`Твой рейтинг: ' + SYMBOL_EXPERIENCE + '{0} ' + SYMBOL_COINS + '{1}`'
 RATING_UNKNOWN_PLAYER = 'Неизвестный кот'
