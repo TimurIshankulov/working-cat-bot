@@ -25,7 +25,7 @@ fill_len = 15
 
 class WorkingCatTeleBot(TeleBot):
 
-    def __init__(self, token, threaded=True, skip_pending=False, num_threads=2):
+    def __init__(self, token, threaded=True, skip_pending=False, num_threads=1):
         TeleBot.__init__(self, token=token, threaded=threaded,
                          skip_pending=skip_pending, num_threads=num_threads)
         self.timers = []
