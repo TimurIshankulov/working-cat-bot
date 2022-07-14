@@ -48,7 +48,8 @@ class WorkingCatTeleBot(TeleBot):
             user = db[user_id]
             return user
         except KeyError:
-            return User(id=user_id)
+            #return User(id=user_id)
+            pass
         finally:
             db.close()
 
