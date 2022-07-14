@@ -210,15 +210,15 @@ CAT_COMMITTEE_INSUFFICIENT_COINS = SYMBOL_COINS + ' Недостаточно м�
 CAT_COMMITTEE_ERROR_OCCURRED = 'Произошла ошибка пожертвования монет.'
 
 RATING_TABLE = '`\
-1) {x[0][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[0][1]} ' + SYMBOL_COINS + '{x[0][2]}\n\
-2) {x[1][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[1][1]} ' + SYMBOL_COINS + '{x[1][2]}\n\
-3) {x[2][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[2][1]} ' + SYMBOL_COINS + '{x[2][2]}\n\
-4) {x[3][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[3][1]} ' + SYMBOL_COINS + '{x[3][2]}\n\
-5) {x[4][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[4][1]} ' + SYMBOL_COINS + '{x[4][2]}\n\
-6) {x[5][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[5][1]} ' + SYMBOL_COINS + '{x[5][2]}\n\
-7) {x[6][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[6][1]} ' + SYMBOL_COINS + '{x[6][2]}\n\
-8) {x[7][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[7][1]} ' + SYMBOL_COINS + '{x[7][2]}\n\
-9) {x[8][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[8][1]} ' + SYMBOL_COINS + '{x[8][2]}\n\
-10){x[9][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[9][1]} ' + SYMBOL_COINS + '{x[9][2]}`'
-RATING_YOU_RATING = '\n\n`Твой рейтинг: ' + SYMBOL_EXPERIENCE + '{0} ' + SYMBOL_COINS + '{1}`'
+1) {x[0][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[0][1]:.0f} ' + SYMBOL_COINS + '{x[0][2]}\n\
+2) {x[1][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[1][1]:.0f} ' + SYMBOL_COINS + '{x[1][2]}\n\
+3) {x[2][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[2][1]:.0f} ' + SYMBOL_COINS + '{x[2][2]}\n\
+4) {x[3][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[3][1]:.0f} ' + SYMBOL_COINS + '{x[3][2]}\n\
+5) {x[4][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[4][1]:.0f} ' + SYMBOL_COINS + '{x[4][2]}\n\
+6) {x[5][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[5][1]:.0f} ' + SYMBOL_COINS + '{x[5][2]}\n\
+7) {x[6][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[6][1]:.0f} ' + SYMBOL_COINS + '{x[6][2]}\n\
+8) {x[7][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[7][1]:.0f} ' + SYMBOL_COINS + '{x[7][2]}\n\
+9) {x[8][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[8][1]:.0f} ' + SYMBOL_COINS + '{x[8][2]}\n\
+10){x[9][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[9][1]:.0f} ' + SYMBOL_COINS + '{x[9][2]}`'
+RATING_YOU_RATING = '\n\n`Твой рейтинг: ' + SYMBOL_EXPERIENCE + '{0:.0f} ' + SYMBOL_COINS + '{1}`'
 RATING_UNKNOWN_PLAYER = 'Неизвестный кот'
