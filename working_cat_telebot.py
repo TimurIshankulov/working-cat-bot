@@ -12,6 +12,7 @@ from telebot.types import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeybo
 from telebot import apihelper, util, types
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
+from icecream import ic
 
 from models import Timer, User, CatCommittee, DeclarativeBase
 from config import log_file, sqlite_users, sqlite_timers, sqlite_cat_committee, conn_string
@@ -711,7 +712,7 @@ class WorkingCatTeleBot(TeleBot):
         user.is_treasure_hunting = False
         user.current_treasure_hunt = None
         user.save()
-
+        
         self.remove_timer(timer)
 
     def action_send_cat_committee_greeting(self, user, chat_id):
@@ -855,7 +856,6 @@ class WorkingCatTeleBot(TeleBot):
         """Adds timer to the database, it will be handled by handle_timers()"""
         timer = Timer(id=None, user=user, chat_id=chat_id, message_id=message_id,
                       start_timestamp=start_timestamp, seconds=seconds, timer_type=timer_type)
-        
         timer.save()
 
     def handle_timers(self):
@@ -866,6 +866,9 @@ class WorkingCatTeleBot(TeleBot):
         
         for timer in timers[::1]:
             user = pickle.loads(timer.user)
+            user = db_session.query(User).filter_by(id=user.id).first()
+            user.trophies = pickle.loads(user.trophies)
+            db_session.close()
             if (current_timestamp - timer.start_timestamp >= timer.seconds and
                 timer.timer_type == 'work'):
                 self.action_complete_work(user, timer)
@@ -874,7 +877,6 @@ class WorkingCatTeleBot(TeleBot):
                   self.action_complete_treasure_hunt(user, timer)
             else:
                 self.action_edit_timer(timer, current_timestamp)
-        db_session.close()
     
     def _TeleBot__threaded_polling(self, non_stop=False, interval=0, timeout=None,
                                    long_polling_timeout=None,
