@@ -1,2 +1,4 @@
 pyTelegramBotAPI
 sqlitedict
+SQLAlchemy
+mysqlclient
