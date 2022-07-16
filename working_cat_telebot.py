@@ -1,17 +1,20 @@
-from cgitb import text
+import pickle
 import datetime
 import time
 import logging
 import traceback
 import random
+import sys
 
 from sqlitedict import SqliteDict
 from telebot import TeleBot
 from telebot.types import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
 from telebot import apihelper, util, types
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
 
-from models import User, CatCommittee
-from config import log_file, sqlite_users, sqlite_timers, sqlite_cat_committee
+from models import Timer, User, CatCommittee, DeclarativeBase
+from config import log_file, sqlite_users, sqlite_timers, sqlite_cat_committee, conn_string
 import texts
 import info
 import utils
@@ -23,12 +26,16 @@ fill='█'
 zfill='░'
 fill_len = 15
 
+engine_working_cat = create_engine(conn_string)
+DeclarativeBase.metadata.bind = engine_working_cat
+DBSession_working_cat = sessionmaker(bind=engine_working_cat)
+db_session = DBSession_working_cat()
+
 class WorkingCatTeleBot(TeleBot):
 
     def __init__(self, token, threaded=True, skip_pending=False, num_threads=1):
         TeleBot.__init__(self, token=token, threaded=threaded,
                          skip_pending=skip_pending, num_threads=num_threads)
-        self.timers = []
 
     def log(self, log_event):
         """Logs event to file, console and sends log message to <admin_list>"""
@@ -41,28 +48,29 @@ class WorkingCatTeleBot(TeleBot):
                 self.send_message(admin, log_event)
 
     def get_user(self, user_id):
-        """Returns user if found else empty class instance"""
         user_id = str(user_id)
-        db = SqliteDict(sqlite_users)
+        db_session = DBSession_working_cat()
         try:
-            user = db[user_id]
+            user = db_session.query(User).filter_by(id=user_id).first()
+            user.trophies = pickle.loads(user.trophies)
             return user
-        except KeyError:
-            #return User(id=user_id)
-            pass
+        except Exception:
+            print(sys.exc_info()[1])
         finally:
-            db.close()
+            db_session.close()
 
     def get_cat_committee(self):
-        """Returns Cat Committee instance"""
-        db = SqliteDict(sqlite_cat_committee)
+        db_session = DBSession_working_cat()
         try:
-            cat_committee = db['cat_committee']
-            return cat_committee
-        except KeyError:
-            return CatCommittee()
+            cat_committee = db_session.query(CatCommittee).filter_by(id='cat_committee').first()
+            if cat_committee is not None:
+                return cat_committee
+            else:
+                return CatCommittee()
+        except Exception:
+            print(sys.exc_info()[1])
         finally:
-            db.close()
+            db_session.close()
 
     def get_choose_work_keyboard(self, user):
         """Returns Inline Keyboard for choosing work"""
@@ -610,15 +618,14 @@ class WorkingCatTeleBot(TeleBot):
 
     def action_complete_work(self, user, timer):
         """Completes active work, removes timer message, sends result message"""
-        self.delete_message(chat_id=timer['chat_id'],
-                            message_id=timer['message_id'])
-
+        self.delete_message(chat_id=timer.chat_id,
+                            message_id=timer.message_id)
         reply = texts.WORK_DONE.format(
             user.cat_name,
             info.work_experience_dict[user.current_work] * user.experience_multiplier,
             info.work_coins_dict[user.current_work] * user.coins_multiplier)
         keyboard = self.get_keyboard(user)
-        self.send_message(timer['chat_id'], reply, reply_markup=keyboard)
+        self.send_message(timer.chat_id, reply, reply_markup=keyboard)
 
         experience = info.work_experience_dict[user.current_work] * user.experience_multiplier
         coins = info.work_coins_dict[user.current_work] * user.coins_multiplier
@@ -633,8 +640,7 @@ class WorkingCatTeleBot(TeleBot):
         cat_committee.experience += experience
         cat_committee.save()
 
-        self.timers.remove(timer)
-        self.save_timers()
+        self.remove_timer(timer)
 
     def action_callback_start_treasure_hunt(self, user, call):
         """Assigns cat for treasure hunt"""
@@ -667,8 +673,8 @@ class WorkingCatTeleBot(TeleBot):
 
     def action_complete_treasure_hunt(self, user, timer):
         """Completes active treasure hunt, removes timer message, sends result message"""
-        self.delete_message(chat_id=timer['chat_id'],
-                            message_id=timer['message_id'])
+        self.delete_message(chat_id=timer.chat_id,
+                            message_id=timer.message_id)
         # Calculate rewards
         treasure_chance = random.randint(1, 100)
         if treasure_chance <= 80:
@@ -686,13 +692,13 @@ class WorkingCatTeleBot(TeleBot):
                     trophy = random.choice(list(trophies_to_roll.keys()))
                     user.trophies[trophy] = True
                     reply = texts.TROPHY_AQUIRED.format(texts.TROPHIES_DICT[trophy])
-                    self.send_message(timer['chat_id'], reply)
+                    self.send_message(timer.chat_id, reply)
 
             reply = texts.TREASURE_HUNT_DONE.format(user.cat_name,
                                                     coins_reward * user.coins_multiplier,
                                                     gems_reward)
             keyboard = self.get_keyboard(user)
-            self.send_message(timer['chat_id'], reply, reply_markup=keyboard)
+            self.send_message(timer.chat_id, reply, reply_markup=keyboard)
 
             user.coins += coins_reward * user.coins_multiplier
             user.gems += gems_reward
@@ -700,14 +706,13 @@ class WorkingCatTeleBot(TeleBot):
         else:
             reply = texts.TREASURE_HUNT_FAILED
             keyboard = self.get_keyboard(user)
-            self.send_message(timer['chat_id'], reply, reply_markup=keyboard)
+            self.send_message(timer.chat_id, reply, reply_markup=keyboard)
 
         user.is_treasure_hunting = False
         user.current_treasure_hunt = None
         user.save()
 
-        self.timers.remove(timer)
-        self.save_timers()
+        self.remove_timer(timer)
 
     def action_send_cat_committee_greeting(self, user, chat_id):
         """Sends status of the cat committee"""
@@ -787,17 +792,17 @@ class WorkingCatTeleBot(TeleBot):
 
     def action_send_rating(self, user, chat_id):
         """Sends rating table with top donaters"""
+        db_session = DBSession_working_cat()
         user.status = 'cat_committee'
         user.save()
-
+        users = db_session.query(User).all()
         rating = []
-        db = SqliteDict(sqlite_users)
-        for user_key in db:
-            rating.append([db[user_key].cat_name,
-                           db[user_key].experience_donated,
-                           db[user_key].coins_donated])
+        for user in users:
+            rating.append([user.cat_name,
+                           user.experience_donated,
+                           user.coins_donated])
         if len(rating) < 10:
-            for i in range(len(rating), 10):
+            for _ in range(len(rating), 10):
                 rating.append([texts.RATING_UNKNOWN_PLAYER, 0, 0])
 
         rating = sorted(rating, key=lambda x: x[2], reverse=True)
@@ -817,19 +822,19 @@ class WorkingCatTeleBot(TeleBot):
 
     def action_edit_timer(self, timer, current_timestamp):
         """Edits timer message"""
-        progress = int(((current_timestamp - timer['start_timestamp']) / 
-                         timer['seconds'] * 100) / (100 / fill_len))
-        remains = timer['start_timestamp'] + timer['seconds'] - current_timestamp
+        progress = int(((current_timestamp - timer.start_timestamp) / 
+                         timer.seconds * 100) / (100 / fill_len))
+        remains = timer.start_timestamp + timer.seconds - current_timestamp
         str_remains = self.get_time_format(remains)
 
-        if timer['timer_type'] == 'work':
+        if timer.timer_type == 'work':
             reply = texts.WORK_STRING_WORKING
-        elif timer['timer_type'] == 'treasure_hunt':
+        elif timer.timer_type == 'treasure_hunt':
             reply = texts.TREASURE_HUNT_STRING_HUNTING
         reply += fill * progress + zfill * (fill_len - progress) + '\n'
         reply += str_remains
-        self.edit_message_text(chat_id=timer['chat_id'],
-                               message_id=timer['message_id'],
+        self.edit_message_text(chat_id=timer.chat_id,
+                               message_id=timer.message_id,
                                text=reply, reply_markup=None)
 
     def get_time_format(self, timestamp):
@@ -838,44 +843,38 @@ class WorkingCatTeleBot(TeleBot):
         secs = str(timestamp % 60) if timestamp % 60 > 9 else '0' + str(timestamp % 60)
         return '{0}:{1}'.format(mins, secs)
 
-    def sync_timers(self):
-        """Syncs timers with sqlite db"""
-        db = SqliteDict(sqlite_timers)
-        try:
-            self.timers = db['timers']
-        except KeyError:
-            pass
-        db.close()
-
-    def save_timers(self):
-        """Saves active timers to sqlite db"""
-        db = SqliteDict(sqlite_timers)
-        db['timers'] = self.timers
-        db.commit()
-        db.close()
+    def remove_timer(self, timer):
+        """Removes active timer"""
+        db_session = DBSession_working_cat()
+        timer_to_delete = db_session.query(Timer).filter_by(id=timer.id).first()
+        db_session.delete(timer_to_delete)
+        db_session.commit()
+        db_session.close()
 
     def add_timer(self, user, chat_id, message_id, start_timestamp, seconds, timer_type):
-        """Adds timer to self.timers, it will be handled by handle_timers()"""
-        timer = {'user': user, 'chat_id': chat_id, 'message_id': message_id,
-                 'start_timestamp': start_timestamp, 'seconds': seconds,
-                 'timer_type': timer_type}
-        self.timers.append(timer)
-        self.save_timers()
-    
+        """Adds timer to the database, it will be handled by handle_timers()"""
+        timer = Timer(id=None, user=user, chat_id=chat_id, message_id=message_id,
+                      start_timestamp=start_timestamp, seconds=seconds, timer_type=timer_type)
+        
+        timer.save()
+
     def handle_timers(self):
         """Handles active timers, sends it to users"""
         current_timestamp = int(time.time())
-        self.sync_timers()
-        for timer in self.timers[::1]:
-            user = timer['user']
-            if (current_timestamp - timer['start_timestamp'] >= timer['seconds'] and
-                timer['timer_type'] == 'work'):
+        db_session = DBSession_working_cat()
+        timers = db_session.query(Timer).all()
+        
+        for timer in timers[::1]:
+            user = pickle.loads(timer.user)
+            if (current_timestamp - timer.start_timestamp >= timer.seconds and
+                timer.timer_type == 'work'):
                 self.action_complete_work(user, timer)
-            elif (current_timestamp - timer['start_timestamp'] >= timer['seconds'] and
-                  timer['timer_type'] == 'treasure_hunt'):
+            elif (current_timestamp - timer.start_timestamp >= timer.seconds and
+                  timer.timer_type == 'treasure_hunt'):
                   self.action_complete_treasure_hunt(user, timer)
             else:
                 self.action_edit_timer(timer, current_timestamp)
+        db_session.close()
     
     def _TeleBot__threaded_polling(self, non_stop=False, interval=0, timeout=None,
                                    long_polling_timeout=None,
