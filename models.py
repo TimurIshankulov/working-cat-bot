@@ -4,6 +4,7 @@ from sqlalchemy import Column, Integer, String, BLOB, Float, Boolean
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from icecream import ic
 
 from config import conn_string
 
@@ -140,11 +141,13 @@ class User(Base):
     #====== Methods ======#
 
     def __str__(self):
-        return ('ID: {self.id}, \
-                 Username: {self.username}, \
-                 Fullname: {self.fullname}, \
-                 Chat ID: {self.chat_id}, \
-                 Status: {self.status}'.format(self=self))
+        return (f'ID: {self.id}, ' + \
+                f'Username: {self.username}, ' + \
+                f'Fullname: {self.fullname}, ' + \
+                f'Chat ID: {self.chat_id}, ' + \
+                f'Status: {self.status}, ' + \
+                f'Is working: {self.is_working}, ' + \
+                f'Is treasure hunting: {self.is_treasure_hunting}')
 
     #====== Properties ======#
 
@@ -217,6 +220,7 @@ class User(Base):
 
         user.current_work = self.current_work
         user.is_working = self.is_working
+        #ic(self.is_working)
         user.current_treasure_hunt = self.current_treasure_hunt
         user.is_treasure_hunting = self.is_treasure_hunting
 
@@ -244,6 +248,7 @@ class User(Base):
 
         if user_was_none:
             db_session.add(user)
+            
         db_session.commit()
         db_session.close()
 
