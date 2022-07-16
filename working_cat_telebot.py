@@ -30,7 +30,7 @@ fill_len = 15
 engine_working_cat = create_engine(conn_string)
 DeclarativeBase.metadata.bind = engine_working_cat
 DBSession_working_cat = sessionmaker(bind=engine_working_cat)
-db_session = DBSession_working_cat()
+#db_session = DBSession_working_cat()
 
 class WorkingCatTeleBot(TeleBot):
 
@@ -431,7 +431,7 @@ class WorkingCatTeleBot(TeleBot):
             else:
                 insufficient_coins = True
 
-        if call.data == 'toy_ball' and not user.toy_ball_aquired:
+        if call.data == 'toy_ball' and not user.toy_ball_acquired:
             if user.coins >= toy_cost:
                 user.coins -= toy_cost
                 user.toy_ball_acquired = True
@@ -797,11 +797,12 @@ class WorkingCatTeleBot(TeleBot):
         user.status = 'cat_committee'
         user.save()
         users = db_session.query(User).all()
+        db_session.close()
         rating = []
-        for user in users:
-            rating.append([user.cat_name,
-                           user.experience_donated,
-                           user.coins_donated])
+        for _user in users:
+            rating.append([_user.cat_name,
+                           _user.experience_donated,
+                           _user.coins_donated])
         if len(rating) < 10:
             for _ in range(len(rating), 10):
                 rating.append([texts.RATING_UNKNOWN_PLAYER, 0, 0])
@@ -833,7 +834,7 @@ class WorkingCatTeleBot(TeleBot):
         elif timer.timer_type == 'treasure_hunt':
             reply = texts.TREASURE_HUNT_STRING_HUNTING
         reply += fill * progress + zfill * (fill_len - progress) + '\n'
-        reply += str_remains
+        reply += str_remains + '.' + str(random.randint(1, 99))
         self.edit_message_text(chat_id=timer.chat_id,
                                message_id=timer.message_id,
                                text=reply, reply_markup=None)
@@ -863,12 +864,12 @@ class WorkingCatTeleBot(TeleBot):
         current_timestamp = int(time.time())
         db_session = DBSession_working_cat()
         timers = db_session.query(Timer).all()
-        
+        db_session.close()
         for timer in timers[::1]:
             user = pickle.loads(timer.user)
             user = db_session.query(User).filter_by(id=user.id).first()
             user.trophies = pickle.loads(user.trophies)
-            db_session.close()
+            
             if (current_timestamp - timer.start_timestamp >= timer.seconds and
                 timer.timer_type == 'work'):
                 self.action_complete_work(user, timer)
