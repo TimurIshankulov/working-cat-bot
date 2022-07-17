@@ -6,7 +6,6 @@ import traceback
 import random
 import sys
 
-from sqlitedict import SqliteDict
 from telebot import TeleBot
 from telebot.types import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
 from telebot import apihelper, util, types
@@ -15,7 +14,7 @@ from sqlalchemy import create_engine
 from icecream import ic
 
 from models import Timer, User, CatCommittee, DeclarativeBase
-from config import log_file, sqlite_users, sqlite_timers, sqlite_cat_committee, conn_string
+from config import log_file, conn_string
 import texts
 import info
 import utils
@@ -30,7 +29,6 @@ fill_len = 15
 engine_working_cat = create_engine(conn_string)
 DeclarativeBase.metadata.bind = engine_working_cat
 DBSession_working_cat = sessionmaker(bind=engine_working_cat)
-#db_session = DBSession_working_cat()
 
 class WorkingCatTeleBot(TeleBot):
 
