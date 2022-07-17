@@ -258,7 +258,7 @@ RATING_TABLE_COINS = '`\
 8) {x[7][0]:<15.15} ' + SYMBOL_COINS + '{x[7][2]}\n\
 9) {x[8][0]:<15.15} ' + SYMBOL_COINS + '{x[8][2]}\n\
 10){x[9][0]:<15.15} ' + SYMBOL_COINS + '{x[9][2]}`'
-RATING_YOUR_RATING = '\n\n`Твой рейтинг: ' + SYMBOL_EXPERIENCE + '{0:.0f} ' + SYMBOL_COINS + '{1}`'
-RATING_YOUR_RATING_EXPERIENCE = '\n\n`Твой рейтинг: ' + SYMBOL_EXPERIENCE + '{0:.0f}`'
-RATING_YOUR_RATING_COINS = '\n\n`Твой рейтинг: ' + SYMBOL_COINS + '{0}`'
+RATING_YOUR_RATING = '\n\n`Ваш рейтинг: ' + SYMBOL_EXPERIENCE + '{0:.0f} ' + SYMBOL_COINS + '{1}`'
+RATING_YOUR_RATING_EXPERIENCE = '\n\n`Ваш рейтинг: ' + SYMBOL_EXPERIENCE + '{0:.0f}`'
+RATING_YOUR_RATING_COINS = '\n\n`Ваш рейтинг: ' + SYMBOL_COINS + '{0}`'
 RATING_UNKNOWN_PLAYER = 'Неизвестный кот'
