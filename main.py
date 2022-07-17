@@ -1,4 +1,5 @@
 import time
+import sys
 
 import telebot
 from telebot.types import ReplyKeyboardMarkup
@@ -26,7 +27,7 @@ def handle_callback(call):
     """Handler for callback queries"""
     user_id = str(call.message.chat.id)
     user = bot.get_user(user_id)
-    print(user.status)
+
     if call.message:
         if call.data in ['wash_dish', 'vacuum', 'bake', 'tiktok', 'advertisement']:
             bot.action_callback_take_work(user, call)
@@ -96,8 +97,11 @@ def handle_message(message):
         elif message.text.lower() == 'пожертвовать монеты':
             bot.action_choose_donate(user, message.chat.id)
 
-        elif message.text.lower() == 'рейтинг':
-            bot.action_send_rating(user, message.chat.id)
+        elif message.text.lower() == 'рейтинг по опыту':
+            bot.action_send_rating(user, message.chat.id, 'experience')
+
+        elif message.text.lower() == 'рейтинг по монетам':
+            bot.action_send_rating(user, message.chat.id, 'coins')
 
         elif message.text.lower() == 'назад':
             bot.action_back_from_cat_committee(user, message.chat.id)
@@ -109,7 +113,7 @@ def handle_message(message):
 while True:
     try:
         bot.polling(non_stop=True, timeout=5, long_polling_timeout=5)
-    except Exception as _ex:
+    except Exception:
         print('Exception occurred:')
-        print(_ex)
+        print(sys.exc_info()[1])
         time.sleep(10)

@@ -287,7 +287,9 @@ class WorkingCatTeleBot(TeleBot):
 
         elif user.status == 'cat_committee':
             keyboard.row(texts.MENU_CAT_COMMITTEE_STATUS, texts.MENU_CAT_COMMITTEE_DONATE)
-            keyboard.row(texts.MENU_CAT_COMMITTEE_RATING, texts.MENU_CAT_COMMITTEE_BACK)
+            keyboard.row(texts.MENU_CAT_COMMITTEE_RATING_EXPERIENCE,
+                         texts.MENU_CAT_COMMITTEE_RATING_COINS)
+            keyboard.row(texts.MENU_CAT_COMMITTEE_BACK)
 
         elif user.status == 'choose_donate':
             keyboard = self.get_choose_donate_keyboard(user)
@@ -792,7 +794,7 @@ class WorkingCatTeleBot(TeleBot):
         keyboard = self.get_keyboard(user)
         self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
-    def action_send_rating(self, user, chat_id):
+    def action_send_rating(self, user, chat_id, rating_type):
         """Sends rating table with top donaters"""
         user.status = 'cat_committee'
         user.save()
@@ -809,9 +811,16 @@ class WorkingCatTeleBot(TeleBot):
             for _ in range(len(rating), 10):
                 rating.append([texts.RATING_UNKNOWN_PLAYER, 0, 0])
 
-        rating = sorted(rating, key=lambda x: x[2], reverse=True)
-        reply = texts.RATING_TABLE.format(x=rating[:10])
-        reply += texts.RATING_YOU_RATING.format(user.experience_donated, user.coins_donated)
+        rating_coins = sorted(rating, key=lambda x: x[2], reverse=True)
+        rating_experience = sorted(rating, key=lambda x: x[1], reverse=True)
+
+        if rating_type == 'experience':
+            reply = texts.RATING_TABLE_EXPERIENCE.format(x=rating_experience[:10])
+            reply += texts.RATING_YOUR_RATING_EXPERIENCE.format(user.experience_donated)
+        elif rating_type == 'coins':
+            reply = texts.RATING_TABLE_COINS.format(x=rating_coins[:10])
+            reply += texts.RATING_YOUR_RATING_COINS.format(user.coins_donated)
+
         keyboard = self.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard, parse_mode='Markdown')
 

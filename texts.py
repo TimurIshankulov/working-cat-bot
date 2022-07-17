@@ -78,6 +78,8 @@ MENU_CAT_COMMITTEE_STATUS = 'Статус комитета'
 MENU_CAT_COMMITTEE_DONATE = 'Пожертвовать монеты'
 MENU_CAT_COMMITTEE_BACK = 'Назад'
 MENU_CAT_COMMITTEE_RATING = 'Рейтинг'
+MENU_CAT_COMMITTEE_RATING_EXPERIENCE = 'Рейтинг по опыту'
+MENU_CAT_COMMITTEE_RATING_COINS = 'Рейтинг по монетам'
 MENU_CAT_COMMITTEE_TO_MENU = 'Возврат в меню Котовского комитета.'
 
 WORK_CHOOSE_WORK = 'Выберите ' + SYMBOL_WORK + ' работу для своего кота. Чем сложнее работа, тем больше она вознаграждается!'
@@ -220,5 +222,31 @@ RATING_TABLE = '`\
 8) {x[7][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[7][1]:.0f} ' + SYMBOL_COINS + '{x[7][2]}\n\
 9) {x[8][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[8][1]:.0f} ' + SYMBOL_COINS + '{x[8][2]}\n\
 10){x[9][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[9][1]:.0f} ' + SYMBOL_COINS + '{x[9][2]}`'
-RATING_YOU_RATING = '\n\n`Твой рейтинг: ' + SYMBOL_EXPERIENCE + '{0:.0f} ' + SYMBOL_COINS + '{1}`'
+
+RATING_TABLE_EXPERIENCE = '`\
+1) {x[0][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[0][1]:.0f}\n\
+2) {x[1][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[1][1]:.0f}\n\
+3) {x[2][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[2][1]:.0f}\n\
+4) {x[3][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[3][1]:.0f}\n\
+5) {x[4][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[4][1]:.0f}\n\
+6) {x[5][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[5][1]:.0f}\n\
+7) {x[6][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[6][1]:.0f}\n\
+8) {x[7][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[7][1]:.0f}\n\
+9) {x[8][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[8][1]:.0f}\n\
+10){x[9][0]:<15.15} ' + SYMBOL_EXPERIENCE + '{x[9][1]:.0f}`'
+
+RATING_TABLE_COINS = '`\
+1) {x[0][0]:<15.15} ' + SYMBOL_COINS + '{x[0][2]}\n\
+2) {x[1][0]:<15.15} ' + SYMBOL_COINS + '{x[1][2]}\n\
+3) {x[2][0]:<15.15} ' + SYMBOL_COINS + '{x[2][2]}\n\
+4) {x[3][0]:<15.15} ' + SYMBOL_COINS + '{x[3][2]}\n\
+5) {x[4][0]:<15.15} ' + SYMBOL_COINS + '{x[4][2]}\n\
+6) {x[5][0]:<15.15} ' + SYMBOL_COINS + '{x[5][2]}\n\
+7) {x[6][0]:<15.15} ' + SYMBOL_COINS + '{x[6][2]}\n\
+8) {x[7][0]:<15.15} ' + SYMBOL_COINS + '{x[7][2]}\n\
+9) {x[8][0]:<15.15} ' + SYMBOL_COINS + '{x[8][2]}\n\
+10){x[9][0]:<15.15} ' + SYMBOL_COINS + '{x[9][2]}`'
+RATING_YOUR_RATING = '\n\n`Твой рейтинг: ' + SYMBOL_EXPERIENCE + '{0:.0f} ' + SYMBOL_COINS + '{1}`'
+RATING_YOUR_RATING_EXPERIENCE = '\n\n`Твой рейтинг: ' + SYMBOL_EXPERIENCE + '{0:.0f}`'
+RATING_YOUR_RATING_COINS = '\n\n`Твой рейтинг: ' + SYMBOL_COINS + '{0}`'
 RATING_UNKNOWN_PLAYER = 'Неизвестный кот'
