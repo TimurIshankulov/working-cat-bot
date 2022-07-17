@@ -29,7 +29,8 @@ def handle_callback(call):
     user = bot.get_user(user_id)
 
     if call.message:
-        if call.data in ['wash_dish', 'vacuum', 'bake', 'tiktok', 'advertisement']:
+        if call.data in ['wash_dish', 'vacuum', 'bake', 'tiktok', 'advertisement',
+                         'curling', 'pilot', 'consul']:
             bot.action_callback_take_work(user, call)
 
         elif call.data in ['toy_mouse', 'toy_bow', 'toy_ball']:

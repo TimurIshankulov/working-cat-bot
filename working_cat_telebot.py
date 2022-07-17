@@ -36,16 +36,6 @@ class WorkingCatTeleBot(TeleBot):
         TeleBot.__init__(self, token=token, threaded=threaded,
                          skip_pending=skip_pending, num_threads=num_threads)
 
-    def log(self, log_event):
-        """Logs event to file, console and sends log message to <admin_list>"""
-        log_event = '[{0}] {1}'.format(datetime.now().strftime("%d.%m.%Y %H:%M:%S"), log_event)
-        with open(log_file, 'a+') as f:
-            f.write(log_event + '\n')
-        print(log_event)
-        if self.admin_list:
-            for admin in self.admin_list:
-                self.send_message(admin, log_event)
-
     def get_user(self, user_id):
         user_id = str(user_id)
         db_session = DBSession_working_cat()
@@ -78,20 +68,21 @@ class WorkingCatTeleBot(TeleBot):
         """Returns Inline Keyboard for choosing work"""
         keyboard = InlineKeyboardMarkup()
 
-        inline_wash_dish = InlineKeyboardButton(
-            text=texts.WORK_WASH_DISH_DESC.format(
-                round(info.work_timer_dict['wash_dish'] / 60 * user.speed_multiplier)),
-            callback_data='wash_dish')
-        keyboard.add(inline_wash_dish)
+        if user.level < 10:
+            inline_wash_dish = InlineKeyboardButton(
+                text=texts.WORK_WASH_DISH_DESC.format(
+                    round(info.work_timer_dict['wash_dish'] / 60 * user.speed_multiplier)),
+                callback_data='wash_dish')
+            keyboard.add(inline_wash_dish)
 
-        if user.level >= 2:
+        if user.level >= 2 and user.level < 14:
             inline_vacuum = InlineKeyboardButton(
                 text=texts.WORK_VACUUM_DESC.format(
                     round(info.work_timer_dict['vacuum'] / 60 * user.speed_multiplier)),
                 callback_data='vacuum')
             keyboard.add(inline_vacuum)
 
-        if user.level >= 3:
+        if user.level >= 3 and user.level < 17:
             inline_bake = InlineKeyboardButton(
                 text=texts.WORK_BAKE_DESC.format(
                     round(info.work_timer_dict['bake'] / 60 * user.speed_multiplier)),
@@ -105,16 +96,39 @@ class WorkingCatTeleBot(TeleBot):
                 callback_data='tiktok')
             keyboard.add(inline_tiktok)
 
-        if user.level >= 5:
+        if user.level >= 6:
             inline_advertisement = InlineKeyboardButton(
                 text=texts.WORK_ADVERTISEMENT_DESC.format(
                     round(info.work_timer_dict['advertisement'] / 60 * user.speed_multiplier)),
                 callback_data='advertisement')
             keyboard.add(inline_advertisement)
+
+        if user.level >= 10:
+            inline_curling = InlineKeyboardButton(
+                text=texts.WORK_CURLING_DESC.format(
+                    round(info.work_timer_dict['curling'] / 60 * user.speed_multiplier)),
+                callback_data='curling')
+            keyboard.add(inline_curling)
+
+        if user.level >= 14:
+            inline_pilot = InlineKeyboardButton(
+                text=texts.WORK_PILOT_DESC.format(
+                    round(info.work_timer_dict['pilot'] / 60 * user.speed_multiplier)),
+                callback_data='pilot')
+            keyboard.add(inline_pilot)
+
+        if user.level >= 17:
+            inline_consul = InlineKeyboardButton(
+                text=texts.WORK_CONSUL_DESC.format(
+                    round(info.work_timer_dict['consul'] / 60 * user.speed_multiplier)),
+                callback_data='consul')
+            keyboard.add(inline_consul)
+
         inline_back = InlineKeyboardButton(
             text=texts.MENU_BACK,
             callback_data='back_from_choosing_work')
         keyboard.add(inline_back)
+
         return keyboard
 
     def get_choose_toy_keyboard(self, user):
