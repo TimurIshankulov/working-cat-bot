@@ -89,6 +89,9 @@ def handle_message(message):
 
         elif message.text.lower() == 'котовский комитет':
             bot.action_send_cat_committee_greeting(user, message.chat.id)
+
+        elif message.text.lower() == 'котик в отпуске':
+            bot.action_send_status(user, message.chat.id)
     
     elif user.status in info.statuses_for_cat_committee_menu:
         if message.text.lower() == 'статус комитета':
