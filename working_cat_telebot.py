@@ -57,6 +57,7 @@ class WorkingCatTeleBot(TeleBot):
             return user
         except Exception:
             print(sys.exc_info()[1])
+            return User()
         finally:
             db_session.close()
 
@@ -613,6 +614,7 @@ class WorkingCatTeleBot(TeleBot):
         self.add_timer(user=user,
                        chat_id=str(call.message.chat.id),
                        message_id=call.message.message_id,
+                       message_text=call.message.text,
                        start_timestamp=int(time.time()),
                        seconds=seconds,
                        timer_type='work')
@@ -625,7 +627,6 @@ class WorkingCatTeleBot(TeleBot):
             user.cat_name,
             info.work_experience_dict[user.current_work] * user.experience_multiplier,
             info.work_coins_dict[user.current_work] * user.coins_multiplier)
-        #keyboard = self.get_keyboard(user)
         self.send_message(timer.chat_id, reply, reply_markup=None)
 
         experience = info.work_experience_dict[user.current_work] * user.experience_multiplier
@@ -668,6 +669,7 @@ class WorkingCatTeleBot(TeleBot):
         self.add_timer(user=user,
                        chat_id=str(call.message.chat.id),
                        message_id=call.message.message_id,
+                       message_text=call.message.text,
                        start_timestamp=int(time.time()),
                        seconds=seconds,
                        timer_type='treasure_hunt')
@@ -698,7 +700,6 @@ class WorkingCatTeleBot(TeleBot):
             reply = texts.TREASURE_HUNT_DONE.format(user.cat_name,
                                                     coins_reward * user.coins_multiplier,
                                                     gems_reward)
-            #keyboard = self.get_keyboard(user)
             self.send_message(timer.chat_id, reply, reply_markup=None)
 
             user.coins += coins_reward * user.coins_multiplier
@@ -836,9 +837,13 @@ class WorkingCatTeleBot(TeleBot):
             reply = texts.TREASURE_HUNT_STRING_HUNTING
         reply += fill * progress + zfill * (fill_len - progress) + '\n'
         reply += str_remains  # + '.' + str(random.randint(1, 99))
-        self.edit_message_text(chat_id=timer.chat_id,
-                               message_id=timer.message_id,
-                               text=reply, reply_markup=None)
+
+        if timer.message_text != reply:
+            self.edit_message_text(chat_id=timer.chat_id,
+                                   message_id=timer.message_id,
+                                   text=reply, reply_markup=None)
+            timer.message_text = reply
+            timer.save()
 
     def get_time_format(self, timestamp):
         """Returns formatted string with timer remains"""
@@ -854,10 +859,12 @@ class WorkingCatTeleBot(TeleBot):
         db_session.commit()
         db_session.close()
 
-    def add_timer(self, user, chat_id, message_id, start_timestamp, seconds, timer_type):
+    def add_timer(self, user, chat_id, message_id, message_text, start_timestamp,
+                  seconds, timer_type):
         """Adds timer to the database, it will be handled by handle_timers()"""
         timer = Timer(id=None, user=user, chat_id=chat_id, message_id=message_id,
-                      start_timestamp=start_timestamp, seconds=seconds, timer_type=timer_type)
+                      message_text=message_text, start_timestamp=start_timestamp,
+                      seconds=seconds, timer_type=timer_type)
         timer.save()
 
     def handle_timers(self):

@@ -1,4 +1,5 @@
 import pickle
+import sys
 
 from sqlalchemy import Column, Integer, String, BLOB, Float, Boolean
 from sqlalchemy import create_engine
@@ -11,7 +12,7 @@ from config import conn_string
 DeclarativeBase = declarative_base()
 engine_working_cat = create_engine(conn_string)
 DBSession_working_cat = sessionmaker(bind=engine_working_cat)
-db_session = DBSession_working_cat()
+#db_session = DBSession_working_cat()
 
 class Base(DeclarativeBase):
     def __init__(self) -> None:
@@ -103,11 +104,11 @@ class User(Base):
     #====== Table options ======#
 
     __tablename__ = 'users'
-    __table_args__ = {'extend_existing': True}    
+    __table_args__ = {'extend_existing': True}
 
     username = Column(String(50))
     fullname = Column(String(60))
-    chat_id = Column(Integer())
+    chat_id = Column(String(20))
     cat_name = Column(String(50))
     status = Column(String(50))
 
@@ -205,6 +206,8 @@ class User(Base):
         if user is None:
             user = self
             user_was_none = True
+        else:
+            self.trophies = pickle.loads(user.trophies)
         
         user._level = self.level
         user._experience = self._experience
@@ -212,6 +215,7 @@ class User(Base):
         user.experience_coef_level = self.experience_coef_level
         user.coins = self.coins
 
+        user.id = self.id
         user.username = self.username
         user.fullname = self.fullname
         user.chat_id = self.chat_id
@@ -220,7 +224,6 @@ class User(Base):
 
         user.current_work = self.current_work
         user.is_working = self.is_working
-        #ic(self.is_working)
         user.current_treasure_hunt = self.current_treasure_hunt
         user.is_treasure_hunting = self.is_treasure_hunting
 
@@ -249,7 +252,11 @@ class User(Base):
         if user_was_none:
             db_session.add(user)
             
-        db_session.commit()
+        try:
+            db_session.commit()
+        except Exception:
+            print(sys.exc_info()[1])
+            db_session.rollback()
         db_session.close()
 
 
@@ -318,12 +325,13 @@ class CatCommittee(DeclarativeBase):
         db_session.close()
 
 class Timer(DeclarativeBase):
-    def __init__(self, id=None, user=None, chat_id=None, message_id=None, start_timestamp=None,
-                 seconds=None, timer_type=None):
+    def __init__(self, id=None, user=None, chat_id=None, message_id=None, message_text=None,
+                 start_timestamp=None, seconds=None, timer_type=None):
         self.id = id
         self.user = user
         self.chat_id = chat_id
         self.message_id = message_id
+        self.message_text = message_text
         self.start_timestamp = start_timestamp
         self.seconds = seconds
         self.timer_type = timer_type
@@ -334,24 +342,34 @@ class Timer(DeclarativeBase):
 
     id = Column(Integer(), primary_key=True, nullable=False, autoincrement=True)
     user = Column(BLOB())
-    chat_id = Column(Integer())
+    chat_id = Column(String(20))
     message_id = Column(Integer())
+    message_text = Column(String(400))
     start_timestamp = Column(Integer())
     seconds = Column(Integer())
     timer_type = Column(String(50))
 
     def save(self):
+        timer_was_none = False
         db_session = DBSession_working_cat()
 
-        timer = self
+        timer = db_session.query(Timer).filter_by(id=self.id).first()
+        if timer is None:
+            timer = self
+            timer_was_none = True
+        else:
+            self.user = pickle.loads(self.user)
+
         timer.user = pickle.dumps(self.user)
         timer.chat_id = self.chat_id
         timer.message_id = self.message_id
+        timer.message_text = self.message_text
         timer.start_timestamp = self.start_timestamp
         timer.seconds = self.seconds
         timer.timer_type = self.timer_type
 
-        db_session.add(timer)
+        if timer_was_none:
+            db_session.add(timer)
         db_session.commit()
         db_session.refresh(timer)
         self.id = timer.id
