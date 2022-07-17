@@ -139,7 +139,7 @@ class User(Base):
     coins_donated = Column(Integer())
     trophies = Column(BLOB())
 
-    #====== Methods ======#
+    #====== Overrided Methods ======#
 
     def __str__(self):
         return (f'ID: {self.id}, ' + \
@@ -206,8 +206,6 @@ class User(Base):
         if user is None:
             user = self
             user_was_none = True
-        else:
-            self.trophies = pickle.loads(user.trophies)
         
         user._level = self.level
         user._experience = self._experience
@@ -257,7 +255,8 @@ class User(Base):
         except Exception:
             print(sys.exc_info()[1])
             db_session.rollback()
-        db_session.close()
+        finally:
+            db_session.close()
 
 
 class CatCommittee(DeclarativeBase):
@@ -304,6 +303,8 @@ class CatCommittee(DeclarativeBase):
     experience_coef_level = Column(Integer)
     coins = Column(Float())
 
+    #====== Methods ======#
+
     def save(self):
         cat_committee_was_none = False
         db_session = DBSession_working_cat()
@@ -321,8 +322,12 @@ class CatCommittee(DeclarativeBase):
         if cat_committee_was_none:
             cat_committee.id = 'cat_committee'
             db_session.add(cat_committee)
-        db_session.commit()
-        db_session.close()
+        try:
+            db_session.commit()
+        except Exception:
+            db_session.rollback()
+        finally:
+            db_session.close()
 
 class Timer(DeclarativeBase):
     def __init__(self, id=None, user=None, chat_id=None, message_id=None, message_text=None,
@@ -349,6 +354,8 @@ class Timer(DeclarativeBase):
     seconds = Column(Integer())
     timer_type = Column(String(50))
 
+    #====== Methods ======#
+
     def save(self):
         timer_was_none = False
         db_session = DBSession_working_cat()
@@ -370,10 +377,14 @@ class Timer(DeclarativeBase):
 
         if timer_was_none:
             db_session.add(timer)
-        db_session.commit()
-        db_session.refresh(timer)
-        self.id = timer.id
-        db_session.close()
+        try:
+            db_session.commit()
+            db_session.refresh(timer)
+            self.id = timer.id
+        except Exception:
+            db_session.rollback()
+        finally:
+            db_session.close()
         
 
 DeclarativeBase.metadata.create_all(engine_working_cat)

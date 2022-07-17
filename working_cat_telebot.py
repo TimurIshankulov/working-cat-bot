@@ -53,11 +53,13 @@ class WorkingCatTeleBot(TeleBot):
         db_session = DBSession_working_cat()
         try:
             user = db_session.query(User).filter_by(id=user_id).first()
-            user.trophies = pickle.loads(user.trophies)
-            return user
+            if user is not None:
+                user.trophies = pickle.loads(user.trophies)
+                return user
+            else:
+                raise
         except Exception:
             print(sys.exc_info()[1])
-            return User()
         finally:
             db_session.close()
 
@@ -302,6 +304,18 @@ class WorkingCatTeleBot(TeleBot):
                     chat_id=message.chat.id, status='new')
         user.fullname = utils.get_fullname(message.from_user.first_name, message.from_user.last_name)
         user.save()
+
+        db_session = DBSession_working_cat()
+        timers = db_session.query(Timer).all()
+        db_session.close()
+        for timer in timers[::1]:
+            _user = pickle.loads(timer.user)
+            if _user.id == user.id:
+                db_session = DBSession_working_cat()
+                db_session.delete(timer)
+                db_session.commit()
+                db_session.close()
+
         self.send_message(message.chat.id, texts.GREETING_1, reply_markup=None)
 
     def action_get_cat_name(self, user, message):
@@ -845,7 +859,7 @@ class WorkingCatTeleBot(TeleBot):
         elif timer.timer_type == 'treasure_hunt':
             reply = texts.TREASURE_HUNT_STRING_HUNTING
         reply += fill * progress + zfill * (fill_len - progress) + '\n'
-        reply += str_remains  # + '.' + str(random.randint(1, 99))
+        reply += str_remains
 
         if timer.message_text != reply:
             self.edit_message_text(chat_id=timer.chat_id,
