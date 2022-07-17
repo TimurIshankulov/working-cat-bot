@@ -598,7 +598,7 @@ class WorkingCatTeleBot(TeleBot):
             self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                    text=call.message.text, reply_markup=None)
             self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
-            return
+            return None
         user.is_working = True
         user.current_work = call.data
         user.save()
@@ -611,7 +611,7 @@ class WorkingCatTeleBot(TeleBot):
 
         seconds = round(info.work_timer_dict[call.data] * user.speed_multiplier)
         self.add_timer(user=user,
-                       chat_id=call.message.chat.id,
+                       chat_id=str(call.message.chat.id),
                        message_id=call.message.message_id,
                        start_timestamp=int(time.time()),
                        seconds=seconds,
@@ -625,8 +625,8 @@ class WorkingCatTeleBot(TeleBot):
             user.cat_name,
             info.work_experience_dict[user.current_work] * user.experience_multiplier,
             info.work_coins_dict[user.current_work] * user.coins_multiplier)
-        keyboard = self.get_keyboard(user)
-        self.send_message(timer.chat_id, reply, reply_markup=keyboard)
+        #keyboard = self.get_keyboard(user)
+        self.send_message(timer.chat_id, reply, reply_markup=None)
 
         experience = info.work_experience_dict[user.current_work] * user.experience_multiplier
         coins = info.work_coins_dict[user.current_work] * user.coins_multiplier
@@ -666,7 +666,7 @@ class WorkingCatTeleBot(TeleBot):
 
         seconds = info.treasure_hunt_timer_dict[call.data]
         self.add_timer(user=user,
-                       chat_id=call.message.chat.id,
+                       chat_id=str(call.message.chat.id),
                        message_id=call.message.message_id,
                        start_timestamp=int(time.time()),
                        seconds=seconds,
@@ -698,8 +698,8 @@ class WorkingCatTeleBot(TeleBot):
             reply = texts.TREASURE_HUNT_DONE.format(user.cat_name,
                                                     coins_reward * user.coins_multiplier,
                                                     gems_reward)
-            keyboard = self.get_keyboard(user)
-            self.send_message(timer.chat_id, reply, reply_markup=keyboard)
+            #keyboard = self.get_keyboard(user)
+            self.send_message(timer.chat_id, reply, reply_markup=None)
 
             user.coins += coins_reward * user.coins_multiplier
             user.gems += gems_reward
@@ -793,9 +793,10 @@ class WorkingCatTeleBot(TeleBot):
 
     def action_send_rating(self, user, chat_id):
         """Sends rating table with top donaters"""
-        db_session = DBSession_working_cat()
         user.status = 'cat_committee'
         user.save()
+
+        db_session = DBSession_working_cat()
         users = db_session.query(User).all()
         db_session.close()
         rating = []
@@ -834,7 +835,7 @@ class WorkingCatTeleBot(TeleBot):
         elif timer.timer_type == 'treasure_hunt':
             reply = texts.TREASURE_HUNT_STRING_HUNTING
         reply += fill * progress + zfill * (fill_len - progress) + '\n'
-        reply += str_remains + '.' + str(random.randint(1, 99))
+        reply += str_remains  # + '.' + str(random.randint(1, 99))
         self.edit_message_text(chat_id=timer.chat_id,
                                message_id=timer.message_id,
                                text=reply, reply_markup=None)
@@ -865,9 +866,12 @@ class WorkingCatTeleBot(TeleBot):
         db_session = DBSession_working_cat()
         timers = db_session.query(Timer).all()
         db_session.close()
+
         for timer in timers[::1]:
             user = pickle.loads(timer.user)
+            db_session = DBSession_working_cat()
             user = db_session.query(User).filter_by(id=user.id).first()
+            db_session.close()
             user.trophies = pickle.loads(user.trophies)
             
             if (current_timestamp - timer.start_timestamp >= timer.seconds and
