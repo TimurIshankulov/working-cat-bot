@@ -19,7 +19,7 @@ home_coin_cost_dict = {'home_small': 300, 'home_flat': 600, 'home_house': 1000, 
 home_gem_cost_dict = {'home_small': 10, 'home_flat': 25, 'home_house': 50, 'home_mansion': 100}
 
 #treasure_hunt_timer_dict = {'solo': 15, 'treasure': 15, 'expedition': 15}
-treasure_hunt_timer_dict = {'solo': 60*60, 'treasure': 90*60, 'expredition': 120*60}
+treasure_hunt_timer_dict = {'solo': 60*60, 'treasure': 90*60, 'expedition': 120*60}
 treasure_hunt_coins_dict = {'solo': 30, 'treasure': 50, 'expedition': 70}
 treasure_hunt_gems_dict = {'solo': 2, 'treasure': 4, 'expedition': 6}
 

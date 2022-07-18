@@ -240,10 +240,10 @@ class WorkingCatTeleBot(TeleBot):
             keyboard.add(inline_treasure)
 
         if user.level >= 15:
-            inline_expredition = InlineKeyboardButton(
+            inline_expedition = InlineKeyboardButton(
                 text=texts.TREASURE_HUNT_EXPEDITION_DESC,
                 callback_data='expedition')
-            keyboard.add(inline_expredition)
+            keyboard.add(inline_expedition)
 
         inline_back = InlineKeyboardButton(
             text=texts.MENU_BACK,
