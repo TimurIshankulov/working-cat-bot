@@ -16,7 +16,7 @@ work_coins_dict = {'wash_dish': 5, 'vacuum': 10, 'bake': 17, 'tiktok': 25,
 toy_cost_dict = {'toy_mouse': 100, 'toy_bow': 200, 'toy_ball': 300}
 food_cost_dict = {'food_fish': 100, 'food_premium': 200, 'food_shrimp': 300}
 home_coin_cost_dict = {'home_small': 300, 'home_flat': 600, 'home_house': 1000, 'home_mansion': 3000}
-home_gem_cost_dict = {'home_small': 10, 'home_flat': 25, 'home_house': 50, 'home_mansion': 100}
+home_gem_cost_dict = {'home_small': 10, 'home_flat': 25, 'home_house': 40, 'home_mansion': 60}
 
 #treasure_hunt_timer_dict = {'solo': 15, 'treasure': 15, 'expedition': 15}
 treasure_hunt_timer_dict = {'solo': 60*60, 'treasure': 90*60, 'expedition': 120*60}
