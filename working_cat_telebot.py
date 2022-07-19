@@ -737,14 +737,17 @@ class WorkingCatTeleBot(TeleBot):
         coins_reward = random.randint(coins_min, coins_max)
 
         # Check if trophy found
-        trophies_to_roll = {key:value for key, value in user.trophies.items() if value == False}
-        if len(trophies_to_roll) > 0:
-            trophy_chance = random.randint(1, 100)
-            if trophy_chance <= 40:
-                trophy = random.choice(list(trophies_to_roll.keys()))
-                user.trophies[trophy] = True
-                reply = texts.TROPHY_AQUIRED.format(texts.TROPHIES_DICT[trophy])
-                self.send_message(timer.chat_id, reply)
+        try:
+            trophies_to_roll = {key:value for key, value in user.trophies.items() if value == False}
+            if len(trophies_to_roll) > 0:
+                trophy_chance = random.randint(1, 100)
+                if trophy_chance <= 40:
+                    trophy = random.choice(list(trophies_to_roll.keys()))
+                    user.trophies[trophy] = True
+                    reply = texts.TROPHY_AQUIRED.format(texts.TROPHIES_DICT[trophy])
+                    self.send_message(timer.chat_id, reply)
+        except Exception:
+            pass
 
         reply = texts.TREASURE_HUNT_DONE.format(user.cat_name,
                                                 coins_reward * user.coins_multiplier,
