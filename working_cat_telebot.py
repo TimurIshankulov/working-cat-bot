@@ -649,8 +649,12 @@ class WorkingCatTeleBot(TeleBot):
 
     def action_complete_work(self, user, timer):
         """Completes active work, removes timer message, sends result message"""
-        self.delete_message(chat_id=timer.chat_id,
-                            message_id=timer.message_id)
+        try:        
+            self.delete_message(chat_id=timer.chat_id,
+                                message_id=timer.message_id)
+        except Exception:
+            pass
+
         reply = texts.WORK_DONE.format(
             user.cat_name,
             info.work_experience_dict[user.current_work] * user.experience_multiplier,
@@ -704,8 +708,12 @@ class WorkingCatTeleBot(TeleBot):
 
     def action_complete_treasure_hunt(self, user, timer):
         """Completes active treasure hunt, removes timer message, sends result message"""
-        self.delete_message(chat_id=timer.chat_id,
-                            message_id=timer.message_id)
+        try:
+            self.delete_message(chat_id=timer.chat_id,
+                                message_id=timer.message_id)
+        except Exception:
+            pass
+
         # Calculate rewards
         treasure_chance = random.randint(1, 100)
         if treasure_chance <= 80:
@@ -874,11 +882,15 @@ class WorkingCatTeleBot(TeleBot):
         reply += str_remains
 
         if timer.message_text != reply:
-            self.edit_message_text(chat_id=timer.chat_id,
-                                   message_id=timer.message_id,
-                                   text=reply, reply_markup=None)
-            timer.message_text = reply
-            timer.save()
+            try:
+                self.edit_message_text(chat_id=timer.chat_id,
+                                       message_id=timer.message_id,
+                                       text=reply, reply_markup=None)
+            except Exception:
+                pass
+            finally:
+                timer.message_text = reply
+                timer.save()
 
     def get_time_format(self, timestamp):
         """Returns formatted string with timer remains"""
