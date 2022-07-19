@@ -41,6 +41,10 @@ SYMBOL_TREASURE = '🗝'
 SYMBOL_SOLO = '🪙'
 SYMBOL_EXPEDITION = '📜'
 
+SYMBOL_TEA = '☕'
+SYMBOL_PAPER = '🖨'
+SYMBOL_RENOVATION = '🔧'
+SYMBOL_FURNITURE = '🪑'
 SYMBOL_RATING = '🥇'
 
 
@@ -216,9 +220,10 @@ SYMBOL_LEVEL + ' Уровень: {0}\n' + \
 SYMBOL_EXPERIENCE + ' Опыт: {1:.1f}/{2}\n' + \
 SYMBOL_COINS + ' Казна: {3:.1f}'
 CAT_COMMITTEE_CHOOSE_DONATE = 'Выберите сумму для пожертвования.'
-CAT_COMMITTEE_DONATE_TEA = 'На чай с печеньками  (' + SYMBOL_COINS + ' 50)'
-CAT_COMMITTEE_DONATE_PAPER = 'Бумага для принтера  (' + SYMBOL_COINS + ' 100)'
-CAT_COMMITTEE_DONATE_RENOVATION = 'Капитальный ремонт (' + SYMBOL_COINS + ' 200)'
+CAT_COMMITTEE_DONATE_TEA = SYMBOL_TEA + ' На чай с печеньками  (' + SYMBOL_COINS + ' 50)'
+CAT_COMMITTEE_DONATE_PAPER = SYMBOL_PAPER + ' Бумага для принтера  (' + SYMBOL_COINS + ' 100)'
+CAT_COMMITTEE_DONATE_RENOVATION = SYMBOL_RENOVATION + 'Капитальный ремонт (' + SYMBOL_COINS + ' 200)'
+CAT_COMMITTEE_DONATE_FURNITURE = SYMBOL_FURNITURE + ' Офисная мебель (' + SYMBOL_COINS + ' 500)'
 CAT_COMMITTEE_DONATE_SUCCESSFUL = SYMBOL_COINS + ' Вы успешно пожертвовали Котовскому комитету {0} монет.'
 CAT_COMMITTEE_INSUFFICIENT_COINS = SYMBOL_COINS + ' Недостаточно монет для пожертвования!'
 CAT_COMMITTEE_ERROR_OCCURRED = 'Произошла ошибка пожертвования монет.'

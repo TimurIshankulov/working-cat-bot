@@ -23,4 +23,5 @@ treasure_hunt_timer_dict = {'solo': 60*60, 'treasure': 90*60, 'expedition': 120*
 treasure_hunt_coins_dict = {'solo': 30, 'treasure': 50, 'expedition': 70}
 treasure_hunt_gems_dict = {'solo': 2, 'treasure': 4, 'expedition': 6}
 
-donate_cost_dict = {'donate_tea': 50, 'donate_paper': 100, 'donate_renovation': 200}
+donate_cost_dict = {'donate_tea': 50, 'donate_paper': 100, 'donate_renovation': 200,
+                    'donate_furniture': 500}

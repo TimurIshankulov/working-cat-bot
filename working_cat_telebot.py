@@ -269,6 +269,11 @@ class WorkingCatTeleBot(TeleBot):
             callback_data='donate_renovation')
         keyboard.add(inline_renovation)
 
+        inline_furniture = InlineKeyboardButton(
+            text=texts.CAT_COMMITTEE_DONATE_FURNITURE,
+            callback_data='donate_furniture')
+        keyboard.add(inline_furniture)
+
         inline_back = InlineKeyboardButton(
             text=texts.MENU_BACK,
             callback_data='back_from_choosing_donate')
