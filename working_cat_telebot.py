@@ -312,11 +312,21 @@ class WorkingCatTeleBot(TeleBot):
 
     def action_add_new_user(self, message):
         """Adds new user to the database"""
-        user = User(id=str(message.from_user.id), username=message.from_user.username,
-                    chat_id=message.chat.id, status='new')
-        user.fullname = utils.get_fullname(message.from_user.first_name, message.from_user.last_name)
+        db_session = DBSession_working_cat()
+        user = db_session.query(User).filter_by(id=str(message.from_user.id)).first()
+        db_session.close()
+        if user is None:
+            user = User(id=str(message.from_user.id), username=message.from_user.username,
+                        chat_id=message.chat.id, status='new')
+            user.fullname = utils.get_fullname(message.from_user.first_name, message.from_user.last_name)
+        else:
+            user.status = 'new'
+            user.is_working = False
+            user.current_work = None
+            user.is_treasure_hunting = False
+            user.current_treasure_hunt = None
         user.save()
-
+        
         db_session = DBSession_working_cat()
         timers = db_session.query(Timer).all()
         db_session.close()
