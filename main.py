@@ -1,5 +1,6 @@
-import time
 import sys
+sys.stderr = open('working-cat.log', 'w')
+import time
 
 import telebot
 from telebot.types import ReplyKeyboardMarkup
