@@ -2,10 +2,6 @@ telegram_token = 'Your telegram bot token'
 
 log_file = 'bot.log'
 
-sqlite_users = 'data/users.sqlite'
-sqlite_timers = 'data/timers.sqlite'
-sqlite_cat_committee = 'data/cat_committee.sqlite'
-
 db_login     = 'user'
 db_password  = 'password'
 db_name      = 'working_cat'
