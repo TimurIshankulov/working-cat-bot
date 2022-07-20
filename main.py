@@ -1,5 +1,7 @@
 import sys
-sys.stderr = open('working-cat.log', 'w')
+from sys import platform
+if platform == "linux" or platform == "linux2":
+    sys.stderr = open('/var/log/working-cat/error.log', 'w')
 import time
 
 import telebot
