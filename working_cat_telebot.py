@@ -374,8 +374,11 @@ class WorkingCatTeleBot(TeleBot):
         """Sends the trophies list to user"""
         user.status = 'idle'
         user.save()
-
+        ic(user.cat_name)
         reply = ''
+        if type(user.trophies) == 'bytes':
+            user.trophies = pickle.loads(user.trophies)
+            user.save()
         for key in user.trophies.keys():
             if user.trophies[key]:
                 reply += texts.TROPHIES_DICT[key] + '\n'
@@ -738,6 +741,9 @@ class WorkingCatTeleBot(TeleBot):
 
         # Check if trophy found
         try:
+            if type(user.trophies) == 'bytes':
+                user.trophies = pickle.loads(user.trophies)
+                user.save()
             trophies_to_roll = {key:value for key, value in user.trophies.items() if value == False}
             if len(trophies_to_roll) > 0:
                 trophy_chance = random.randint(1, 100)
