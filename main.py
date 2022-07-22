@@ -3,6 +3,7 @@ from sys import platform
 if platform == "linux" or platform == "linux2":
     sys.stderr = open('/var/log/working-cat/error.log', 'w')
 import time
+import traceback
 
 import telebot
 from telebot.types import ReplyKeyboardMarkup
@@ -123,5 +124,6 @@ while True:
         bot.polling(non_stop=True, timeout=5, long_polling_timeout=5)
     except Exception:
         print('Exception occurred:')
-        print(sys.exc_info()[1])
+        print(traceback.format_exc())
+        #print(sys.exc_info()[1])
         time.sleep(10)
