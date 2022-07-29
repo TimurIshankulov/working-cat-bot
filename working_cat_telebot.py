@@ -677,7 +677,10 @@ class WorkingCatTeleBot(TeleBot):
             user.cat_name,
             info.work_experience_dict[user.current_work] * user.experience_multiplier,
             info.work_coins_dict[user.current_work] * user.coins_multiplier)
-        self.send_message(timer.chat_id, reply, reply_markup=None)
+        try:
+            self.send_message(timer.chat_id, reply, reply_markup=None)
+        except Exception:
+            pass
 
         experience = info.work_experience_dict[user.current_work] * user.experience_multiplier
         coins = info.work_coins_dict[user.current_work] * user.coins_multiplier
@@ -758,7 +761,10 @@ class WorkingCatTeleBot(TeleBot):
         reply = texts.TREASURE_HUNT_DONE.format(user.cat_name,
                                                 coins_reward * user.coins_multiplier,
                                                 gems_reward)
-        self.send_message(timer.chat_id, reply, reply_markup=None)
+        try:
+            self.send_message(timer.chat_id, reply, reply_markup=None)
+        except Exception:
+            pass
 
         user.coins += coins_reward * user.coins_multiplier
         user.gems += gems_reward
