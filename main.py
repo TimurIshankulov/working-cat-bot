@@ -2,6 +2,7 @@ import sys
 from sys import platform
 if platform == "linux" or platform == "linux2":
     sys.stderr = open('/var/log/working-cat/error.log', 'w')
+    sys.stdout = open('/var/log/working-cat/output.log', 'w')
 import time
 import traceback
 
