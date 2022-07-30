@@ -3,7 +3,8 @@ SYMBOL_LEVEL = '🔼'
 SYMBOL_STATUS = '💬'
 SYMBOL_EXPERIENCE = '🏆'
 SYMBOL_COINS = '💰'
-SYMBOL_GEMS = '💎'
+#SYMBOL_GEMS = '💎'
+SYMBOL_GEMS = '🪙'
 SYMBOL_BONUS = '🏅'
 SYMBOL_ATTENTION = '❗'
 SYMBOL_QUESTION = '❓'
@@ -64,7 +65,7 @@ SYMBOL_LEVEL + ' Уровень: {1}\n' + \
 SYMBOL_STATUS + ' Статус: {2}\n' + \
 SYMBOL_EXPERIENCE + ' Опыт: {3:.1f}/{4}\n' + \
 SYMBOL_COINS + ' Монеты: {5:.1f}\n' + \
-SYMBOL_GEMS + ' Самоцветы: {6}'
+SYMBOL_GEMS + ' Дублоны: {6}'
 
 CAT_STATUS_IDLE = SUMBOL_IDLE + ' отдыхает'
 CAT_STATUS_ON_WORK = SYMBOL_WORK + ' работает'
@@ -165,7 +166,7 @@ HOME_KIND_DICT = {'home_small': HOME_SMALL_ACQUIRED,
                   'home_mansion': HOME_MANSION_ACQUIRED}
 HOME_ALREADY_ACQUIRED = SYMBOL_HOME + ' Вы уже приобрели этот дом!'
 HOME_INSUFFICIENT_COINS = SYMBOL_COINS + ' Недостаточно монет для покупки!'
-HOME_INSUFFICIENT_GEMS = SYMBOL_GEMS + ' Недостаточно самоцветов для покупки!'
+HOME_INSUFFICIENT_GEMS = SYMBOL_GEMS + ' Недостаточно дублонов для покупки!'
 HOME_LOW_LEVEL = SYMBOL_ATTENTION + 'Покупка домов доступна с 5 уровня!'
 
 TREASURE_HUNT_CHOOSE_TREASURE_HUNT = 'Выберите одну из доступных активностей по ' + SYMBOL_TREASURE + \
@@ -185,7 +186,7 @@ TREASURE_HUNT_LOW_LEVEL = SYMBOL_ATTENTION + 'Эта активность дос
 TREASURE_HUNT_ALREADY_HUNTING = '{0} уже ищет сокровища, не разорваться же!'
 TREASURE_HUNT_DONE = SYMBOL_TREASURE + '{0} завершил поиск сокровищ.\n' + \
 SYMBOL_COINS + ' Получено монет: {1:.1f}\n' + \
-SYMBOL_GEMS + ' Получено самоцветов: {2}'
+SYMBOL_GEMS + ' Получено дублонов: {2}'
 TREASURE_HUNT_FAILED = SYMBOL_TREASURE + ' Поиски сокровищ не увенчались успехом :( . Повезет в следующий раз!'
 
 TROPHY_A_NAME = SYMBOL_CHECK + ' Шерстяной клубочек'
