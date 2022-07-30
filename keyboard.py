@@ -245,6 +245,11 @@ class Keyboard:
             callback_data='donate_furniture')
         keyboard.add(inline_furniture)
 
+        inline_satellite = InlineKeyboardButton(
+            text=texts.CAT_COMMITTEE_DONATE_SATELLITE,
+            callback_data='donate_satellite')
+        keyboard.add(inline_satellite)
+
         inline_back = InlineKeyboardButton(
             text=texts.MENU_BACK,
             callback_data='back_from_choosing_donate')

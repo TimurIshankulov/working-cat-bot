@@ -51,7 +51,7 @@ def handle_callback(call):
             bot.action_callback_start_treasure_hunt(user, call)
 
         elif call.data in ['donate_tea', 'donate_paper', 'donate_renovation',
-                           'donate_furniture']:
+                           'donate_furniture', 'donate_satellite']:
             bot.action_callback_donate_coins(user, call)
 
         elif call.data in ['back_from_choosing_work', 'back_from_choosing_toy',
