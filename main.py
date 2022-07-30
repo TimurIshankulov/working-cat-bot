@@ -73,47 +73,47 @@ def handle_message(message):
         bot.action_get_cat_name(user, message)
 
     elif user.status in info.statuses_for_main_menu:
-        if message.text.lower() == 'статус':
+        if message.text.lower() == texts.MESSAGE_STATUS:
             bot.action_send_status(user, message.chat.id)
 
-        elif message.text.lower() == 'работа':
+        elif message.text.lower() == texts.MESSAGE_WORK:
             bot.action_choose_work(user, message.chat.id)
 
-        elif message.text.lower() == 'игрушки':
+        elif message.text.lower() == texts.MESSAGE_TOYS:
             bot.action_choose_toys(user, message.chat.id)
 
-        elif message.text.lower() == 'корм':
+        elif message.text.lower() == texts.MESSAGE_FOOD:
             bot.action_choose_food(user, message.chat.id)
 
-        elif message.text.lower() == 'дома':
+        elif message.text.lower() == texts.MESSAGE_HOMES:
             bot.action_choose_home(user, message.chat.id)
 
-        elif message.text.lower() == 'поиск сокровищ':
+        elif message.text.lower() == texts.MESSAGE_TREASURE_HUNT:
             bot.action_choose_treasure_hunt(user, message.chat.id)
 
-        elif message.text.lower() == 'трофеи':
+        elif message.text.lower() == texts.MESSAGE_TROPHIES:
             bot.action_send_trophies(user, message.chat.id)
 
-        elif message.text.lower() == 'котовский комитет':
+        elif message.text.lower() == texts.MESSAGE_CAT_COMMITTEE:
             bot.action_send_cat_committee_greeting(user, message.chat.id)
 
-        elif message.text.lower() == 'котик в отпуске':
+        elif message.text.lower() == texts.MESSAGE_CAT_VACATION:
             bot.action_send_status(user, message.chat.id)
     
     elif user.status in info.statuses_for_cat_committee_menu:
-        if message.text.lower() == 'статус комитета':
+        if message.text.lower() == texts.MESSAGE_CAT_COMMITTEE_STATUS:
             bot.action_send_cat_committee_status(user, message.chat.id)
 
-        elif message.text.lower() == 'пожертвовать монеты':
+        elif message.text.lower() == texts.MESSAGE_DONATE_COINS:
             bot.action_choose_donate(user, message.chat.id)
 
-        elif message.text.lower() == 'рейтинг по опыту':
+        elif message.text.lower() == texts.MESSAGE_RATING_EXPERIENCE:
             bot.action_send_rating(user, message.chat.id, 'experience')
 
-        elif message.text.lower() == 'рейтинг по монетам':
+        elif message.text.lower() == texts.MESSAGE_RATING_COINS:
             bot.action_send_rating(user, message.chat.id, 'coins')
 
-        elif message.text.lower() == 'назад':
+        elif message.text.lower() == texts.MESSAGE_BACK:
             bot.action_back_from_cat_committee(user, message.chat.id)
 
     else:
@@ -126,5 +126,4 @@ while True:
     except Exception:
         print('Exception occurred:')
         print(traceback.format_exc())
-        #print(sys.exc_info()[1])
         time.sleep(10)
