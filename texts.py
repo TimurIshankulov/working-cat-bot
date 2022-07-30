@@ -19,8 +19,10 @@ SYMBOL_BAKE = '🥧'
 SYMBOL_TIKTOK = '🎥'
 SYMBOL_ADVERTISEMENT = '🎬'
 SYMBOL_CURLING = '🐾'
+SYMBOL_INVESTOR = '📈'
 SYMBOL_PILOT = '🚀'
 SYMBOL_CONSUL = '🪐'
+SYMBOL_CEO = '💼'
 
 SYMBOL_TOYS = '🧶'
 SYMBOL_MOUSE = '🐭'
@@ -104,18 +106,24 @@ WORK_ADVERTISEMENT_STARTED = '{0} ' + SYMBOL_ADVERTISEMENT + ' снимаетс�
 WORK_ADVERTISEMENT_DESC = SYMBOL_ADVERTISEMENT + ' Реклама кошачьего корма ({0} мин.)'
 WORK_CURLING_STARTED = '{0} ' + SYMBOL_CURLING + ' работает тренером по кёрлингу. Лапки не помеха настоящему профессионалу!'
 WORK_CURLING_DESC = SYMBOL_CURLING + ' Тренер по кёрлингу ({0} мин.)'
+WORK_INVESTOR_STARTED = '{0} ' + SYMBOL_INVESTOR + ' начал инвестировать накопленные монеты в маленькие инди-компании. Будем надеятся на высокую прибыль!'
+WORK_INVESTOR_DESC = SYMBOL_INVESTOR + ' Инвестор ({0} мин.)'
 WORK_PILOT_STARTED = '{0} отправился ' + SYMBOL_PILOT + ' бороздить просторы космоса. Котику-космонавту покорятся любые высоты!'
 WORK_PILOT_DESC = SYMBOL_PILOT + ' Космонавт ({0} мин.)'
 WORK_CONSUL_STARTED = 'Пушистый межгалактический консул {0} ' + SYMBOL_CONSUL + ' представляет интересы Котовского комитета. Идут переговоры!'
 WORK_CONSUL_DESC = SYMBOL_CONSUL + ' Межгалактический консул ({0} мин.)'
+WORK_CEO_STARTED = 'Глава корпорации {0} ' + SYMBOL_CEO + ' приступил к выполнению своих обязанностей. Контролируем работу котиков!'
+WORK_CEO_DESC = SYMBOL_CEO + ' Глава корпорации ({0} мин.)'
 WORK_KIND_DICT = {'wash_dish': WORK_WASH_DISH_STARTED,
                   'vacuum': WORK_VACUUM_STARTED,
                   'bake': WORK_BAKE_STARTED,
                   'tiktok': WORK_TIKTOK_STARTED,
                   'advertisement': WORK_ADVERTISEMENT_STARTED,
                   'curling': WORK_CURLING_STARTED,
+                  'investor': WORK_INVESTOR_STARTED,
                   'pilot': WORK_PILOT_STARTED,
-                  'consul': WORK_CONSUL_STARTED}
+                  'consul': WORK_CONSUL_STARTED,
+                  'ceo': WORK_CEO_STARTED}
 WORK_ALREADY_WORKING = '{0} уже работает, за сверхурочные ему не заплатят!'
 WORK_DONE = SYMBOL_WORK + ' {0} завершил свою работу.\n' + SYMBOL_EXPERIENCE + ' Получено очков \
 опыта: {1:.1f}\n' + SYMBOL_COINS + ' Получено монет: {2}'

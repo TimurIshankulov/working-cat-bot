@@ -3,67 +3,92 @@ from telebot.types import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeybo
 import texts
 import info
 
+VACUUM_LEVEL = 2
+BAKE_LEVEL = 3
+TIKTOK_LEVEL = 4
+ADVERTISEMENT_LEVEL = 6
+CURLING_LEVEL = 10
+INVESTOR_LEVEL = 14
+PILOT_LEVEL = 18
+CONSUL_LEVEL = 22
+CEO_LEVEL = 26
+
 class Keyboard:
-    
+
+    @staticmethod
     def get_choose_work_keyboard(user):
         """Returns Inline Keyboard for choosing work"""
         keyboard = InlineKeyboardMarkup()
 
-        if user.level < 10:
+        if user.level < CURLING_LEVEL:
             inline_wash_dish = InlineKeyboardButton(
                 text=texts.WORK_WASH_DISH_DESC.format(
                     round(info.work_timer_dict['wash_dish'] / 60 * user.speed_multiplier)),
                 callback_data='wash_dish')
             keyboard.add(inline_wash_dish)
 
-        if user.level >= 2 and user.level < 14:
+        if user.level >= VACUUM_LEVEL and user.level < INVESTOR_LEVEL:
             inline_vacuum = InlineKeyboardButton(
                 text=texts.WORK_VACUUM_DESC.format(
                     round(info.work_timer_dict['vacuum'] / 60 * user.speed_multiplier)),
                 callback_data='vacuum')
             keyboard.add(inline_vacuum)
 
-        if user.level >= 3 and user.level < 17:
+        if user.level >= BAKE_LEVEL and user.level < PILOT_LEVEL:
             inline_bake = InlineKeyboardButton(
                 text=texts.WORK_BAKE_DESC.format(
                     round(info.work_timer_dict['bake'] / 60 * user.speed_multiplier)),
                 callback_data='bake')
             keyboard.add(inline_bake)
         
-        if user.level >= 4:
+        if user.level >= TIKTOK_LEVEL and user.level < CONSUL_LEVEL:
             inline_tiktok = InlineKeyboardButton(
                 text=texts.WORK_TIKTOK_DESC.format(
                     round(info.work_timer_dict['tiktok'] / 60 * user.speed_multiplier)),
                 callback_data='tiktok')
             keyboard.add(inline_tiktok)
 
-        if user.level >= 6:
+        if user.level >= ADVERTISEMENT_LEVEL and user.level < CEO_LEVEL:
             inline_advertisement = InlineKeyboardButton(
                 text=texts.WORK_ADVERTISEMENT_DESC.format(
                     round(info.work_timer_dict['advertisement'] / 60 * user.speed_multiplier)),
                 callback_data='advertisement')
             keyboard.add(inline_advertisement)
 
-        if user.level >= 10:
+        if user.level >= CURLING_LEVEL:
             inline_curling = InlineKeyboardButton(
                 text=texts.WORK_CURLING_DESC.format(
                     round(info.work_timer_dict['curling'] / 60 * user.speed_multiplier)),
                 callback_data='curling')
             keyboard.add(inline_curling)
 
-        if user.level >= 14:
+        if user.level >= INVESTOR_LEVEL:
+            inline_investor = InlineKeyboardButton(
+                text=texts.WORK_INVESTOR_DESC.format(
+                    round(info.work_timer_dict['investor'] / 60 * user.speed_multiplier)),
+                callback_data='investor')
+            keyboard.add(inline_investor)
+
+        if user.level >= PILOT_LEVEL:
             inline_pilot = InlineKeyboardButton(
                 text=texts.WORK_PILOT_DESC.format(
                     round(info.work_timer_dict['pilot'] / 60 * user.speed_multiplier)),
                 callback_data='pilot')
             keyboard.add(inline_pilot)
 
-        if user.level >= 17:
+        if user.level >= CONSUL_LEVEL:
             inline_consul = InlineKeyboardButton(
                 text=texts.WORK_CONSUL_DESC.format(
                     round(info.work_timer_dict['consul'] / 60 * user.speed_multiplier)),
                 callback_data='consul')
             keyboard.add(inline_consul)
+
+        if user.level >= CEO_LEVEL:
+            inline_ceo = InlineKeyboardButton(
+                text=texts.WORK_CEO_DESC.format(
+                    round(info.work_timer_dict['ceo'] / 60 * user.speed_multiplier)),
+                callback_data='ceo')
+            keyboard.add(inline_ceo)
 
         inline_back = InlineKeyboardButton(
             text=texts.MENU_BACK,
@@ -72,6 +97,7 @@ class Keyboard:
 
         return keyboard
 
+    @staticmethod
     def get_choose_toy_keyboard(user):
         """Returns Inline Keyboard for choosing toy"""
         keyboard = InlineKeyboardMarkup()
@@ -99,6 +125,7 @@ class Keyboard:
         keyboard.add(inline_back)
         return keyboard
 
+    @staticmethod
     def get_choose_food_keyboard(user):
         """Returns Inline Keyboard for choosing food"""
         keyboard = InlineKeyboardMarkup()
@@ -126,6 +153,7 @@ class Keyboard:
         keyboard.add(inline_back)
         return keyboard
 
+    @staticmethod
     def get_choose_home_keyboard(user):
         """Returns Inline Keyboard for choosing home"""
         keyboard = InlineKeyboardMarkup()
@@ -164,6 +192,7 @@ class Keyboard:
         keyboard.add(inline_back)
         return keyboard
 
+    @staticmethod
     def get_choose_treasure_hunt_keyboard(user):
         """Returns Inline Keyboard for choosing treasure hunt"""
         keyboard = InlineKeyboardMarkup()
@@ -192,6 +221,7 @@ class Keyboard:
         keyboard.add(inline_back)
         return keyboard
 
+    @staticmethod
     def get_choose_donate_keyboard(user):
         keyboard = InlineKeyboardMarkup()
 
