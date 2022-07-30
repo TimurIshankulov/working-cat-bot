@@ -6,20 +6,12 @@ if platform == "linux" or platform == "linux2":
 import time
 import traceback
 
-import telebot
-from telebot.types import ReplyKeyboardMarkup
-
-from models import User
 from working_cat_telebot import WorkingCatTeleBot
-import utils
 import texts
 import info
 from config import telegram_token
 
 bot = WorkingCatTeleBot(telegram_token)
-
-keyboard_main = ReplyKeyboardMarkup(True, True)
-keyboard_main.row('Статус', 'Работа')
 
 @bot.message_handler(commands=['start'])
 def start_message(message):

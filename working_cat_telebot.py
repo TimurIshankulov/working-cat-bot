@@ -1,5 +1,4 @@
 import pickle
-import datetime
 import time
 import logging
 import traceback
@@ -7,15 +6,14 @@ import random
 import sys
 
 from telebot import TeleBot
-from telebot.types import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
-from telebot import apihelper, util, types
+from telebot import apihelper, util
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from icecream import ic
 
 from models import Timer, User, CatCommittee, DeclarativeBase
 from keyboard import Keyboard
-from config import log_file, conn_string
+from config import conn_string
 import texts
 import info
 import utils
@@ -124,7 +122,6 @@ class WorkingCatTeleBot(TeleBot):
         """Sends the trophies list to user"""
         user.status = 'idle'
         user.save()
-        ic(user.cat_name)
         reply = ''
         if type(user.trophies) == 'bytes':
             user.trophies = pickle.loads(user.trophies)
