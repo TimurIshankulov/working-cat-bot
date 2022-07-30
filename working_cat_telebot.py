@@ -14,6 +14,7 @@ from sqlalchemy import create_engine
 from icecream import ic
 
 from models import Timer, User, CatCommittee, DeclarativeBase
+from keyboard import Keyboard
 from config import log_file, conn_string
 import texts
 import info
@@ -64,257 +65,6 @@ class WorkingCatTeleBot(TeleBot):
         finally:
             db_session.close()
 
-    def get_choose_work_keyboard(self, user):
-        """Returns Inline Keyboard for choosing work"""
-        keyboard = InlineKeyboardMarkup()
-
-        if user.level < 10:
-            inline_wash_dish = InlineKeyboardButton(
-                text=texts.WORK_WASH_DISH_DESC.format(
-                    round(info.work_timer_dict['wash_dish'] / 60 * user.speed_multiplier)),
-                callback_data='wash_dish')
-            keyboard.add(inline_wash_dish)
-
-        if user.level >= 2 and user.level < 14:
-            inline_vacuum = InlineKeyboardButton(
-                text=texts.WORK_VACUUM_DESC.format(
-                    round(info.work_timer_dict['vacuum'] / 60 * user.speed_multiplier)),
-                callback_data='vacuum')
-            keyboard.add(inline_vacuum)
-
-        if user.level >= 3 and user.level < 17:
-            inline_bake = InlineKeyboardButton(
-                text=texts.WORK_BAKE_DESC.format(
-                    round(info.work_timer_dict['bake'] / 60 * user.speed_multiplier)),
-                callback_data='bake')
-            keyboard.add(inline_bake)
-        
-        if user.level >= 4:
-            inline_tiktok = InlineKeyboardButton(
-                text=texts.WORK_TIKTOK_DESC.format(
-                    round(info.work_timer_dict['tiktok'] / 60 * user.speed_multiplier)),
-                callback_data='tiktok')
-            keyboard.add(inline_tiktok)
-
-        if user.level >= 6:
-            inline_advertisement = InlineKeyboardButton(
-                text=texts.WORK_ADVERTISEMENT_DESC.format(
-                    round(info.work_timer_dict['advertisement'] / 60 * user.speed_multiplier)),
-                callback_data='advertisement')
-            keyboard.add(inline_advertisement)
-
-        if user.level >= 10:
-            inline_curling = InlineKeyboardButton(
-                text=texts.WORK_CURLING_DESC.format(
-                    round(info.work_timer_dict['curling'] / 60 * user.speed_multiplier)),
-                callback_data='curling')
-            keyboard.add(inline_curling)
-
-        if user.level >= 14:
-            inline_pilot = InlineKeyboardButton(
-                text=texts.WORK_PILOT_DESC.format(
-                    round(info.work_timer_dict['pilot'] / 60 * user.speed_multiplier)),
-                callback_data='pilot')
-            keyboard.add(inline_pilot)
-
-        if user.level >= 17:
-            inline_consul = InlineKeyboardButton(
-                text=texts.WORK_CONSUL_DESC.format(
-                    round(info.work_timer_dict['consul'] / 60 * user.speed_multiplier)),
-                callback_data='consul')
-            keyboard.add(inline_consul)
-
-        inline_back = InlineKeyboardButton(
-            text=texts.MENU_BACK,
-            callback_data='back_from_choosing_work')
-        keyboard.add(inline_back)
-
-        return keyboard
-
-    def get_choose_toy_keyboard(self, user):
-        """Returns Inline Keyboard for choosing toy"""
-        keyboard = InlineKeyboardMarkup()
-
-        inline_mouse = InlineKeyboardButton(
-            text=texts.TOYS_MOUSE_DESC,
-            callback_data='toy_mouse')
-        keyboard.add(inline_mouse)
-
-        if user.level >= 5:
-            inline_bow = InlineKeyboardButton(
-                text=texts.TOYS_BOW_DESC,
-                callback_data='toy_bow')
-            keyboard.add(inline_bow)
-
-        if user.level >= 10:
-            inline_ball = InlineKeyboardButton(
-                text=texts.TOYS_BALL_DESC,
-                callback_data='toy_ball')
-            keyboard.add(inline_ball)
-
-        inline_back = InlineKeyboardButton(
-            text=texts.MENU_BACK,
-            callback_data='back_from_choosing_toy')
-        keyboard.add(inline_back)
-        return keyboard
-
-    def get_choose_food_keyboard(self, user):
-        """Returns Inline Keyboard for choosing food"""
-        keyboard = InlineKeyboardMarkup()
-
-        inline_fish = InlineKeyboardButton(
-            text=texts.FOOD_FISH_DESC,
-            callback_data='food_fish')
-        keyboard.add(inline_fish)
-
-        if user.level >= 5:
-            inline_premium = InlineKeyboardButton(
-                text=texts.FOOD_PREMIUM_DESC,
-                callback_data='food_premium')
-            keyboard.add(inline_premium)
-
-        if user.level >= 10:
-            inline_shrimp = InlineKeyboardButton(
-                text=texts.FOOD_SHRIMP_DESC,
-                callback_data='food_shrimp')
-            keyboard.add(inline_shrimp)
-
-        inline_back = InlineKeyboardButton(
-            text=texts.MENU_BACK,
-            callback_data='back_from_choosing_food')
-        keyboard.add(inline_back)
-        return keyboard
-
-    def get_choose_home_keyboard(self, user):
-        """Returns Inline Keyboard for choosing home"""
-        keyboard = InlineKeyboardMarkup()
-
-        if user.level >= 5:
-            inline_small = InlineKeyboardButton(
-                text=texts.HOME_SMALL_DESC.format(info.home_coin_cost_dict['home_small'],
-                                                  info.home_gem_cost_dict['home_small']),
-                callback_data='home_small')
-            keyboard.add(inline_small)
-
-        if user.level >= 10:
-            inline_flat = InlineKeyboardButton(
-                text=texts.HOME_FLAT_DESC.format(info.home_coin_cost_dict['home_flat'],
-                                                 info.home_gem_cost_dict['home_flat']),
-                callback_data='home_flat')
-            keyboard.add(inline_flat)
-
-        if user.level >= 15:
-            inline_house = InlineKeyboardButton(
-                text=texts.HOME_HOUSE_DESC.format(info.home_coin_cost_dict['home_house'],
-                                                  info.home_gem_cost_dict['home_house']),
-                callback_data='home_house')
-            keyboard.add(inline_house)
-
-        if user.level >= 20:
-            inline_mansion = InlineKeyboardButton(
-                text=texts.HOME_MANSION_DESC.format(info.home_coin_cost_dict['home_mansion'],
-                                                    info.home_gem_cost_dict['home_mansion']),
-                callback_data='home_mansion')
-            keyboard.add(inline_mansion)
-
-        inline_back = InlineKeyboardButton(
-            text=texts.MENU_BACK,
-            callback_data='back_from_choosing_home')
-        keyboard.add(inline_back)
-        return keyboard
-
-    def get_choose_treasure_hunt_keyboard(self, user):
-        """Returns Inline Keyboard for choosing treasure hunt"""
-        keyboard = InlineKeyboardMarkup()
-
-        if user.level >= 5:
-            inline_solo = InlineKeyboardButton(
-                text=texts.TREASURE_HUNT_SOLO_DESC,
-                callback_data='solo')
-            keyboard.add(inline_solo)
-
-        if user.level >= 10:
-            inline_treasure = InlineKeyboardButton(
-                text=texts.TREASURE_HUNT_TREASURE_DESC,
-                callback_data='treasure')
-            keyboard.add(inline_treasure)
-
-        if user.level >= 15:
-            inline_expedition = InlineKeyboardButton(
-                text=texts.TREASURE_HUNT_EXPEDITION_DESC,
-                callback_data='expedition')
-            keyboard.add(inline_expedition)
-
-        inline_back = InlineKeyboardButton(
-            text=texts.MENU_BACK,
-            callback_data='back_from_choosing_treasure_hunt')
-        keyboard.add(inline_back)
-        return keyboard
-
-    def get_choose_donate_keyboard(self, user):
-        keyboard = InlineKeyboardMarkup()
-
-        inline_tea = InlineKeyboardButton(
-            text=texts.CAT_COMMITTEE_DONATE_TEA,
-            callback_data='donate_tea')
-        keyboard.add(inline_tea)
-
-        inline_paper = InlineKeyboardButton(
-            text=texts.CAT_COMMITTEE_DONATE_PAPER,
-            callback_data='donate_paper')
-        keyboard.add(inline_paper)
-
-        inline_renovation = InlineKeyboardButton(
-            text=texts.CAT_COMMITTEE_DONATE_RENOVATION,
-            callback_data='donate_renovation')
-        keyboard.add(inline_renovation)
-
-        inline_furniture = InlineKeyboardButton(
-            text=texts.CAT_COMMITTEE_DONATE_FURNITURE,
-            callback_data='donate_furniture')
-        keyboard.add(inline_furniture)
-
-        inline_back = InlineKeyboardButton(
-            text=texts.MENU_BACK,
-            callback_data='back_from_choosing_donate')
-        keyboard.add(inline_back)
-        return keyboard
-
-    def get_keyboard(self, user):
-        """Returns keyboard depending on <user.status>"""
-        keyboard = ReplyKeyboardMarkup(True, True)
-        if user.status == 'idle':
-            keyboard.row(texts.MENU_STATUS, texts.MENU_WORK)
-            keyboard.row(texts.MENU_TOYS, texts.MENU_FOOD, texts.MENU_HOME)
-            keyboard.row(texts.MENU_TREASURE_HUNT, texts.MENU_TROPHIES)
-            keyboard.row(texts.MENU_CAT_COMMITTEE)
-
-        elif user.status == 'choose_work':
-            keyboard = self.get_choose_work_keyboard(user)
-
-        elif user.status == 'choose_toys':
-            keyboard = self.get_choose_toy_keyboard(user)
-
-        elif user.status == 'choose_food':
-            keyboard = self.get_choose_food_keyboard(user)
-
-        elif user.status == 'choose_home':
-            keyboard = self.get_choose_home_keyboard(user)
-
-        elif user.status == 'choose_treasure_hunt':
-            keyboard = self.get_choose_treasure_hunt_keyboard(user)
-
-        elif user.status == 'cat_committee':
-            keyboard.row(texts.MENU_CAT_COMMITTEE_STATUS, texts.MENU_CAT_COMMITTEE_DONATE)
-            keyboard.row(texts.MENU_CAT_COMMITTEE_RATING_EXPERIENCE,
-                         texts.MENU_CAT_COMMITTEE_RATING_COINS)
-            keyboard.row(texts.MENU_CAT_COMMITTEE_BACK)
-
-        elif user.status == 'choose_donate':
-            keyboard = self.get_choose_donate_keyboard(user)
-        
-        return keyboard
-
     def action_add_new_user(self, message):
         """Adds new user to the database"""
         db_session = DBSession_working_cat()
@@ -351,7 +101,7 @@ class WorkingCatTeleBot(TeleBot):
         user.status = 'idle'
         user.save()
         reply = texts.GREETING_2.format(user.cat_name)
-        keyboard = self.get_keyboard(user)
+        keyboard = Keyboard.get_keyboard(user)
         self.send_message(message.chat.id, reply, reply_markup=keyboard)
 
     def action_send_status(self, user, chat_id):
@@ -367,7 +117,7 @@ class WorkingCatTeleBot(TeleBot):
         reply = texts.STATUS_OVERALL.format(user.cat_name, user.level, text,
                                             user.experience, user.until_level,
                                             user.coins, user.gems)
-        keyboard = self.get_keyboard(user)
+        keyboard = Keyboard.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
     def action_send_trophies(self, user, chat_id):
@@ -385,7 +135,7 @@ class WorkingCatTeleBot(TeleBot):
             else:
                 reply += texts.TROPHY_UNKNOWN + '\n'
 
-        keyboard = self.get_keyboard(user)
+        keyboard = Keyboard.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
     def action_unknown_status(self, user, chat_id):
@@ -393,7 +143,7 @@ class WorkingCatTeleBot(TeleBot):
         user.status = 'idle'
         user.save()
         reply = texts.REPLY_UNKNOWN_STATUS
-        keyboard = self.get_keyboard(user)
+        keyboard = Keyboard.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
     def action_choose_work(self, user, chat_id):
@@ -401,7 +151,7 @@ class WorkingCatTeleBot(TeleBot):
         user.status = 'choose_work'
         user.save()
         reply = texts.WORK_CHOOSE_WORK
-        keyboard = self.get_keyboard(user)
+        keyboard = Keyboard.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
     def action_choose_toys(self, user, chat_id):
@@ -409,7 +159,7 @@ class WorkingCatTeleBot(TeleBot):
         user.status = 'choose_toys'
         user.save()
         reply = texts.TOYS_CHOOSE_TOY
-        keyboard = self.get_keyboard(user)
+        keyboard = Keyboard.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
     def action_choose_food(self, user, chat_id):
@@ -417,7 +167,7 @@ class WorkingCatTeleBot(TeleBot):
         user.status = 'choose_food'
         user.save()
         reply = texts.FOOD_CHOOSE_FOOD
-        keyboard = self.get_keyboard(user)
+        keyboard = Keyboard.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
     def action_choose_home(self, user, chat_id):
@@ -426,13 +176,13 @@ class WorkingCatTeleBot(TeleBot):
             user.status = 'choose_home'
             user.save()
             reply = texts.HOME_CHOOSE_HOME
-            keyboard = self.get_keyboard(user)
+            keyboard = Keyboard.get_keyboard(user)
             self.send_message(chat_id, reply, reply_markup=keyboard)
         else:
             user.status = 'idle'
             user.save()
             reply = texts.HOME_LOW_LEVEL
-            keyboard = self.get_keyboard(user)
+            keyboard = Keyboard.get_keyboard(user)
             self.send_message(chat_id, reply, reply_markup=keyboard)
 
     def action_choose_treasure_hunt(self, user, chat_id):
@@ -441,13 +191,13 @@ class WorkingCatTeleBot(TeleBot):
             user.status = 'choose_treasure_hunt'
             user.save()
             reply = texts.TREASURE_HUNT_CHOOSE_TREASURE_HUNT
-            keyboard = self.get_keyboard(user)
+            keyboard = Keyboard.get_keyboard(user)
             self.send_message(chat_id, reply, reply_markup=keyboard)
         else:
             user.status = 'idle'
             user.save()
             reply = texts.TREASURE_HUNT_LOW_LEVEL
-            keyboard = self.get_keyboard(user)
+            keyboard = Keyboard.get_keyboard(user)
             self.send_message(chat_id, reply, reply_markup=keyboard)
 
     def action_callback_acquire_toy(self, user, call):
@@ -489,16 +239,16 @@ class WorkingCatTeleBot(TeleBot):
 
         if toy_acquired:
             reply = texts.TOYS_KIND_DICT[call.data]
-            keyboard = self.get_keyboard(user)
+            keyboard = Keyboard.get_keyboard(user)
             self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
         else:
             if insufficient_coins:
                 reply = texts.TOYS_INSUFFICIENT_COINS
-                keyboard = self.get_keyboard(user)
+                keyboard = Keyboard.get_keyboard(user)
                 self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
             else:    
                 reply = texts.TOYS_ALREADY_ACQUIRED
-                keyboard = self.get_keyboard(user)
+                keyboard = Keyboard.get_keyboard(user)
                 self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
     def action_callback_acquire_food(self, user, call):
@@ -538,16 +288,16 @@ class WorkingCatTeleBot(TeleBot):
 
         if food_acquired:
             reply = texts.FOOD_KIND_DICT[food]
-            keyboard = self.get_keyboard(user)
+            keyboard = Keyboard.get_keyboard(user)
             self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
         else:
             if insufficient_coins:
                 reply = texts.FOOD_INSUFFICIENT_COINS
-                keyboard = self.get_keyboard(user)
+                keyboard = Keyboard.get_keyboard(user)
                 self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
             else:
                 reply = texts.FOOD_ALREADY_ACQUIRED
-                keyboard = self.get_keyboard(user)
+                keyboard = Keyboard.get_keyboard(user)
                 self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
     def action_callback_acquire_home(self, user, call):
@@ -622,7 +372,7 @@ class WorkingCatTeleBot(TeleBot):
         else:
             reply = texts.HOME_ALREADY_ACQUIRED
 
-        keyboard = self.get_keyboard(user)
+        keyboard = Keyboard.get_keyboard(user)
         self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
     def action_callback_back_from_submenu(self, user, call):
@@ -632,7 +382,7 @@ class WorkingCatTeleBot(TeleBot):
         self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                text=call.message.text, reply_markup=None)
         reply = texts.BACK_TO_MAIN_MENU
-        keyboard = self.get_keyboard(user)
+        keyboard = Keyboard.get_keyboard(user)
         self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
     def action_callback_take_work(self, user, call):
@@ -641,7 +391,7 @@ class WorkingCatTeleBot(TeleBot):
         user.save()
         if user.is_working:
             reply = texts.WORK_ALREADY_WORKING.format(user.cat_name)
-            keyboard = self.get_keyboard(user)
+            keyboard = Keyboard.get_keyboard(user)
             self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                    text=call.message.text, reply_markup=None)
             self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
@@ -653,7 +403,7 @@ class WorkingCatTeleBot(TeleBot):
                                text=call.message.text, reply_markup=None)
 
         reply = texts.WORK_KIND_DICT[call.data].format(user.cat_name)
-        keyboard = self.get_keyboard(user)
+        keyboard = Keyboard.get_keyboard(user)
         self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
         seconds = round(info.work_timer_dict[call.data] * user.speed_multiplier)
@@ -703,7 +453,7 @@ class WorkingCatTeleBot(TeleBot):
         user.save()
         if user.is_treasure_hunting:
             reply = texts.TREASURE_HUNT_ALREADY_HUNTING.format(user.cat_name)
-            keyboard = self.get_keyboard(user)
+            keyboard = Keyboard.get_keyboard(user)
             self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                    text=call.message.text, reply_markup=None)
             self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
@@ -715,7 +465,7 @@ class WorkingCatTeleBot(TeleBot):
                                text=call.message.text, reply_markup=None)
 
         reply = texts.TREASURE_HUNT_KIND_DICT[call.data].format(user.cat_name)
-        keyboard = self.get_keyboard(user)
+        keyboard = Keyboard.get_keyboard(user)
         self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
         seconds = info.treasure_hunt_timer_dict[call.data]
@@ -780,7 +530,7 @@ class WorkingCatTeleBot(TeleBot):
         user.save()
 
         reply = texts.CAT_COMMITTEE_GREETING
-        keyboard = self.get_keyboard(user)
+        keyboard = Keyboard.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
     def action_callback_to_cat_committee_menu(self, user, call):
@@ -790,7 +540,7 @@ class WorkingCatTeleBot(TeleBot):
         self.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                text=call.message.text, reply_markup=None)
         reply = texts.MENU_CAT_COMMITTEE_TO_MENU
-        keyboard = self.get_keyboard(user)
+        keyboard = Keyboard.get_keyboard(user)
         self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
     def action_send_cat_committee_status(self, user, chat_id):
@@ -804,7 +554,7 @@ class WorkingCatTeleBot(TeleBot):
                                                   cat_committee.experience,
                                                   cat_committee.until_level,
                                                   cat_committee.coins)
-        keyboard = self.get_keyboard(user)
+        keyboard = Keyboard.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
     def action_choose_donate(self, user, chat_id):
@@ -812,7 +562,7 @@ class WorkingCatTeleBot(TeleBot):
         user.status = 'choose_donate'
         user.save()
         reply = texts.CAT_COMMITTEE_CHOOSE_DONATE
-        keyboard = self.get_keyboard(user)
+        keyboard = Keyboard.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
     def action_callback_donate_coins(self, user, call):
@@ -847,7 +597,7 @@ class WorkingCatTeleBot(TeleBot):
         else:
             reply = texts.CAT_COMMITTEE_ERROR_OCCURRED
 
-        keyboard = self.get_keyboard(user)
+        keyboard = Keyboard.get_keyboard(user)
         self.send_message(call.message.chat.id, reply, reply_markup=keyboard)
 
     def action_send_rating(self, user, chat_id, rating_type):
@@ -877,7 +627,7 @@ class WorkingCatTeleBot(TeleBot):
             reply = texts.RATING_TABLE_COINS.format(x=rating_coins[:10])
             reply += texts.RATING_YOUR_RATING_COINS.format(user.coins_donated)
 
-        keyboard = self.get_keyboard(user)
+        keyboard = Keyboard.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard, parse_mode='Markdown')
 
     def action_back_from_cat_committee(self, user, chat_id):
@@ -886,7 +636,7 @@ class WorkingCatTeleBot(TeleBot):
         user.save()
 
         reply = texts.BACK_TO_MAIN_MENU
-        keyboard = self.get_keyboard(user)
+        keyboard = Keyboard.get_keyboard(user)
         self.send_message(chat_id, reply, reply_markup=keyboard)
 
     def action_edit_timer(self, timer, current_timestamp):
