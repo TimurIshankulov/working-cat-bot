@@ -148,9 +148,9 @@ TOYS_CHOOSE_TOY = 'Выберите ' + SYMBOL_TOYS + ' игрушку для с
 TOYS_MOUSE_ACQUIRED = 'Поздравляем! Вы приобрели ' + SYMBOL_MOUSE + ' игрушечную мышь для кота и получили постоянный бонус + 10% к получаемому опыту!'
 TOYS_MOUSE_DESC = SYMBOL_MOUSE + ' Мышка (' + SYMBOL_COINS + ' 100)'
 TOYS_BOW_ACQUIRED = 'Поздравляем! Вы приобрели ' + SYMBOL_BOW + ' бантик на веревке и получили постоянный бонус + 20% к получаемому опыту!'
-TOYS_BOW_DESC = SYMBOL_BOW + ' Бантик на веревке (' + SYMBOL_COINS + ' 200)'
+TOYS_BOW_DESC = SYMBOL_BOW + ' Бантик на веревке (' + SYMBOL_COINS + ' 250)'
 TOYS_BALL_ACQUIRED = 'Поздравляем! Вы приобрели ' + SYMBOL_BALL + ' шарик для игры и получили постоянный бонус + 30% к получаемому опыту!'
-TOYS_BALL_DESC = SYMBOL_BALL + ' Шарик-погремушка (' + SYMBOL_COINS + ' 300)'
+TOYS_BALL_DESC = SYMBOL_BALL + ' Шарик-погремушка (' + SYMBOL_COINS + ' 500)'
 TOYS_KIND_DICT = {'toy_mouse': TOYS_MOUSE_ACQUIRED,
                   'toy_bow': TOYS_BOW_ACQUIRED,
                   'toy_ball': TOYS_BALL_ACQUIRED}
@@ -163,10 +163,10 @@ FOOD_FISH_ACQUIRED = 'Поздравляем! Вы покормили своег
 FOOD_FISH_DESC = SYMBOL_FISH + ' Рыбка (' + SYMBOL_COINS + ' 100)'
 FOOD_PREMIUM_ACQUIRED = 'Поздравляем! Вы покормили своего кота ' + SYMBOL_PREMIUM + \
 ' премиум-кормом и получили постоянный бонус + 20% к скорости выполнения заданий!'
-FOOD_PREMIUM_DESC = SYMBOL_PREMIUM + ' Премиум-корм (' + SYMBOL_COINS + ' 200)'
+FOOD_PREMIUM_DESC = SYMBOL_PREMIUM + ' Премиум-корм (' + SYMBOL_COINS + ' 250)'
 FOOD_SHRIMP_ACQUIRED = 'Поздравляем! Вы покормили своего кота ' + SYMBOL_SHRIMP + \
 ' королевской креветкой и получили постоянный бонус + 30% к скорости выполнения заданий!'
-FOOD_SHRIMP_DESC = SYMBOL_SHRIMP + ' Королевская креветка (' + SYMBOL_COINS + ' 300 )'
+FOOD_SHRIMP_DESC = SYMBOL_SHRIMP + ' Королевская креветка (' + SYMBOL_COINS + ' 500 )'
 FOOD_KIND_DICT = {'food_fish': FOOD_FISH_ACQUIRED,
                   'food_premium': FOOD_PREMIUM_ACQUIRED,
                   'food_shrimp': FOOD_SHRIMP_ACQUIRED}
