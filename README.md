@@ -12,6 +12,6 @@ Send your cat to work, buy food and toys, homes, seek treasures and more!
 
 ```python -m pip install -r requirements.txt```
 
-3) Rename config_template.py to config.py and specify your settings (including you telegram bot's token).
+3) Rename config_template.py to config.py and specify your settings (including your telegram bot's token).
 
 4) Run main.py to start the bot.
